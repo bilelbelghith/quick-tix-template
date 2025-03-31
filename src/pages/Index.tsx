@@ -5,7 +5,9 @@ import Navbar from "@/components/Navbar";
 import StepAnimation from "@/components/StepAnimation";
 import FeatureCard from "@/components/FeatureCard";
 import { Link } from "react-router-dom";
-import { LayoutTemplate, Palette, Ticket, Sparkles, Globe, Clock, CreditCard, Users } from "lucide-react";
+import { LayoutTemplate, Palette, Ticket, Sparkles, Globe, Clock, CreditCard, Users,ArrowRight } from "lucide-react";
+import { Player } from '@lottiefiles/react-lottie-player';
+import { motion } from 'framer-motion';
 
 // Import Lottie animations
 import templateAnimation from '@/assets/animations/template.json';
