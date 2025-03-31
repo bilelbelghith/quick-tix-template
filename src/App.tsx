@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Customizer from "./pages/Customizer";
 import EventPage from "./pages/EventPage";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/:templateId/customize" element={<Customizer />} />
           <Route path="/:username/:eventSlug" element={<EventPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           {/* These routes will be implemented in future steps */}
           <Route path="/templates" element={<NotFound />} />
           <Route path="/pricing" element={<NotFound />} />
