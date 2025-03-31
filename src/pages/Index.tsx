@@ -44,63 +44,55 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section with Animated Gradient Background */}
-      <section className="pt-28 pb-20 animated-gradient">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
-              style={{ opacity: 0 }}
-              data-aos="fade-up"
-            >
-              Your branded ticketing site in 5 minutes – no code needed
-            </h1>
-            <p 
-              className="text-xl md:text-2xl text-white/80 mb-10"
-              style={{ 
-                opacity: 0,
-                animationDelay: '200ms' 
-              }}
-              data-aos="fade-up"
-            >
-              Create custom event pages, sell tickets, and grow your audience – all in one platform.
-            </p>
-            <div 
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-              style={{ 
-                opacity: 0,
-                animationDelay: '400ms' 
-              }}
-              data-aos="fade-up"
-            >
-              <Link to="/onboarding">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-                  Get Started
-                </Button>
-              </Link>
-              <Link to="/templates">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
-                  View Templates
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Wave separator */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden">
-          <svg 
-            className="relative block w-full h-[50px]" 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 1200 120" 
-            preserveAspectRatio="none"
+      <section className="relative min-h-screen flex items-center">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 animate-gradient-slow"></div>
+      
+      <div className="relative container mx-auto px-4 py-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center lg:text-left"
           >
-            <path 
-              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.46,118.92,149.43,68,225.36,58.94Z" 
-              fill="#ffffff"
-            ></path>
-          </svg>
+            <h1 className="text-5xl lg:text-6xl font-display font-bold text-gray-900 mb-6">
+              Your branded ticketing site in{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
+                5 minutes
+              </span>{' '}
+              – no code needed
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Choose a template, customize your brand, and start selling tickets instantly.
+              No technical skills required.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </motion.button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative"
+          >
+            <Player
+              autoplay
+              loop
+              src="https://assets10.lottiefiles.com/packages/lf20_xvrofzfk.json"
+              style={{ height: '400px', width: '100%' }}
+            />
+          </motion.div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* 3-Step Visual Demo */}
       <section className="py-20 bg-white">
