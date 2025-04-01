@@ -11,35 +11,16 @@ import Onboarding from "./pages/Onboarding";
 import Customizer from "./pages/Customizer";
 import EventPage from "./pages/EventPage";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
+import ResetPassword from "./pages/ResetPassword";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { supabase } from "./lib/supabase";
 
 // Auth component to check if user is logged in
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-      setIsLoading(false);
-    };
-
-    checkAuth();
-
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-      setIsLoading(false);
-    });
-
-    return () => {
-      if (authListener && authListener.subscription) {
-        authListener.subscription.unsubscribe();
-      }
-    };
-  }, []);
-
+  const { user, isLoading } = useAuth();
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -48,8 +29,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
+  if (!user) {
+    return <Navigate to="/auth" />;
   }
 
   return <>{children}</>;
@@ -57,46 +38,58 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/auth/signup" element={<Auth />} />
+      <Route path="/auth/reset-password" element={<ResetPassword />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route 
+        path="/onboarding" 
+        element={
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/:templateId/customize" 
+        element={
+          <ProtectedRoute>
+            <Customizer />
+          </ProtectedRoute>
+        } 
+      />
+      <Route path="/:username/:eventSlug" element={<EventPage />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      {/* These routes will be implemented in future steps */}
+      <Route path="/templates" element={<NotFound />} />
+      <Route path="/pricing" element={<NotFound />} />
+      <Route path="/features" element={<NotFound />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route 
-            path="/onboarding" 
-            element={
-              <ProtectedRoute>
-                <Onboarding />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/:templateId/customize" 
-            element={
-              <ProtectedRoute>
-                <Customizer />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/:username/:eventSlug" element={<EventPage />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          {/* These routes will be implemented in future steps */}
-          <Route path="/templates" element={<NotFound />} />
-          <Route path="/pricing" element={<NotFound />} />
-          <Route path="/features" element={<NotFound />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
