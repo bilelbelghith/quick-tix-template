@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
@@ -15,47 +14,122 @@ import EventPreview from '@/components/EventPreview';
 import ColorSelector from '@/components/ColorSelector';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { supabase, generateUniqueSlug } from '@/lib/supabase';
 
 const Customizer = () => {
   const { templateId } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: defaultEventValues,
   });
 
+  const uploadImage = async (file: string, path: string): Promise<string | null> => {
+    if (!file || !file.startsWith('blob:')) return null;
+    
+    try {
+      const response = await fetch(file);
+      const blob = await response.blob();
+      
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+      const filePath = `${path}/${fileName}`;
+      
+      const { data, error } = await supabase.storage
+        .from('organizer_uploads')
+        .upload(filePath, blob);
+      
+      if (error) throw error;
+      
+      const { data: publicUrlData } = supabase.storage
+        .from('organizer_uploads')
+        .getPublicUrl(data.path);
+      
+      return publicUrlData.publicUrl;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      throw new Error('Failed to upload image');
+    }
+  };
+
   const onSubmit = async (data: EventFormValues) => {
     setIsLoading(true);
     
-    // Here we would send data to Supabase
     try {
-      console.log('Event data to save:', data);
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      const organizerId = userData.user?.id;
+      if (!organizerId) throw new Error('You must be logged in to create an event');
+      
+      const slug = await generateUniqueSlug(data.name);
+      
+      let coverImageUrl = null;
+      let logoUrl = null;
+      
+      if (data.coverImage) {
+        coverImageUrl = await uploadImage(data.coverImage, `events/${organizerId}/covers`);
+      }
+      
+      if (data.logoImage) {
+        logoUrl = await uploadImage(data.logoImage, `events/${organizerId}/logos`);
+      }
+      
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .insert({
+          organizer_id: organizerId,
+          name: data.name,
+          slug: slug,
+          date: data.date.toISOString(),
+          location: data.location,
+          cover_image_url: coverImageUrl,
+          logo_url: logoUrl,
+          primary_color: data.primaryColor,
+          template_id: templateId || 'concert',
+        })
+        .select()
+        .single();
+      
+      if (eventError) throw eventError;
+      
+      if (data.ticketTiers && data.ticketTiers.length > 0) {
+        const ticketTiersData = data.ticketTiers.map(tier => ({
+          event_id: eventData.id,
+          name: tier.name,
+          price: tier.price,
+          description: tier.description,
+          quantity: tier.quantity,
+          available: tier.quantity
+        }));
+        
+        const { error: tiersError } = await supabase
+          .from('ticket_tiers')
+          .insert(ticketTiersData);
+        
+        if (tiersError) throw tiersError;
+      }
+      
       toast({
         title: "Event saved!",
         description: "Your event has been created successfully.",
       });
-
-      // Here we would redirect to the event page
-      // navigate(`/username/${slug}`);
+      
+      navigate(`/${userData.user.email?.split('@')[0] || organizerId}/${slug}`);
     } catch (error) {
-      console.error(error);
+      console.error('Error saving event:', error);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "There was a problem saving your event.",
+        description: error instanceof Error ? error.message : "There was a problem saving your event.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Watch form values for live preview
   const formValues = form.watch();
 
   return (
@@ -74,15 +148,18 @@ const Customizer = () => {
               disabled={isLoading}
               className="bg-purple-600 hover:bg-purple-700"
             >
-              <Save className="mr-2 h-4 w-4" />
-              Save Event
+              {isLoading ? 'Saving...' : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Event
+                </>
+              )}
             </Button>
           </div>
         </div>
       </header>
 
       <div className="flex flex-col lg:flex-row flex-1">
-        {/* Left Sidebar - Form */}
         <div className="w-full lg:w-[40%] border-r p-6 overflow-auto">
           <Form {...form}>
             <form className="space-y-6">
@@ -223,7 +300,6 @@ const Customizer = () => {
           </Form>
         </div>
 
-        {/* Right Preview Pane */}
         <div className="w-full lg:w-[60%] bg-muted/30 p-6 overflow-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

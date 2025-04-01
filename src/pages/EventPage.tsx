@@ -8,66 +8,73 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ShareButtons from '@/components/ShareButtons';
 import TicketTierTable, { TicketTier } from '@/components/TicketTierTable';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
-// Mock data - would be fetched from Supabase in a real implementation
-const mockEvent = {
-  id: 'evt-123',
-  name: 'Summer Music Festival',
-  date: new Date('2023-08-15T18:00:00'),
-  location: 'Central Park, New York',
-  coverImage: '/placeholder.svg',
-  logoImage: '',
-  primaryColor: '#6D28D9', // purple-600
-  organizer: 'AcmeEvents',
-  slug: 'summer-music-festival',
-};
-
-const mockTicketTiers: TicketTier[] = [
-  { 
-    id: 'tier-1', 
-    name: 'General Admission', 
-    price: 25, 
-    description: 'Standard entry to event', 
-    quantity: 100,
-    available: 68
-  },
-  { 
-    id: 'tier-2', 
-    name: 'VIP', 
-    price: 50, 
-    description: 'Premium seating and complimentary drink', 
-    quantity: 50,
-    available: 32
-  }
-];
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  location: string;
+  cover_image_url: string | null;
+  logo_url: string | null;
+  primary_color: string;
+  organizer_id: string;
+  slug: string;
+}
 
 const EventPage: React.FC = () => {
   const { username, eventSlug } = useParams<{ username: string; eventSlug: string }>();
-  const [event, setEvent] = useState(mockEvent);
-  const [ticketTiers, setTicketTiers] = useState<TicketTier[]>(mockTicketTiers);
-  const [isLoading, setIsLoading] = useState(false);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // This would fetch real event data from Supabase
+  // Fetch event data from Supabase
   useEffect(() => {
     const fetchEventData = async () => {
-      setIsLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // First, find the organizer's ID from their username
+        const { data: organizerData, error: organizerError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', username)
+          .single();
+
+        if (organizerError) throw organizerError;
         
-        // In a real implementation, we'd fetch data from Supabase
-        // const { data, error } = await supabase
-        //   .from('events')
-        //   .select('*, ticket_tiers(*)')
-        //   .eq('slug', eventSlug)
-        //   .eq('organizer_username', username)
-        //   .single();
+        const organizerId = organizerData?.id;
         
-        // if (error) throw error;
-        // setEvent(data);
-        // setTicketTiers(data.ticket_tiers);
+        // Fetch the event using organizer ID and event slug
+        const { data: eventData, error: eventError } = await supabase
+          .from('events')
+          .select('*')
+          .eq('slug', eventSlug)
+          .eq('organizer_id', organizerId)
+          .single();
+
+        if (eventError) throw eventError;
         
+        setEvent(eventData);
+        
+        // Fetch ticket tiers for this event
+        const { data: tierData, error: tierError } = await supabase
+          .from('ticket_tiers')
+          .select('*')
+          .eq('event_id', eventData.id);
+          
+        if (tierError) throw tierError;
+        
+        // Convert to TicketTier format
+        const formattedTiers: TicketTier[] = tierData.map(tier => ({
+          id: tier.id,
+          name: tier.name,
+          price: tier.price,
+          description: tier.description || '',
+          quantity: tier.quantity,
+          available: tier.available
+        }));
+        
+        setTicketTiers(formattedTiers);
       } catch (error) {
         console.error('Error fetching event:', error);
         toast({
@@ -80,39 +87,77 @@ const EventPage: React.FC = () => {
       }
     };
     
-    fetchEventData();
+    if (username && eventSlug) {
+      fetchEventData();
+    }
   }, [username, eventSlug, toast]);
 
   const handleCheckout = async (selections: { tierId: string; quantity: number }[]) => {
     try {
-      console.log('Processing checkout for:', selections);
-      
-      // This would initiate a Stripe checkout session
-      // In a real implementation:
-      // const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-      //   body: { eventId: event.id, tickets: selections }
-      // });
-      // 
-      // if (error) throw error;
-      // window.location.href = data.url;
-      
-      toast({
-        title: "Checkout initiated",
-        description: "You would now be redirected to Stripe checkout",
+      // First, verify ticket availability
+      const verifyAvailability = selections.map(selection => {
+        const tier = ticketTiers.find(t => t.id === selection.tierId);
+        if (!tier) throw new Error(`Ticket tier not found`);
+        if (tier.available < selection.quantity) {
+          throw new Error(`Not enough tickets available for ${tier.name}`);
+        }
+        return true;
       });
+      
+      if (!verifyAvailability.every(v => v === true)) {
+        throw new Error("Some tickets are no longer available");
+      }
+      
+      // Create Stripe checkout session
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { 
+          eventId: event?.id,
+          tickets: selections,
+          returnUrl: window.location.href 
+        }
+      });
+      
+      if (error) throw error;
+      
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
     } catch (error) {
       console.error('Checkout error:', error);
       toast({
         variant: "destructive",
         title: "Checkout failed",
-        description: "There was an error processing your request.",
+        description: error instanceof Error ? error.message : "There was an error processing your request.",
       });
     }
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4">Loading event...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show 404 if event not found
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Event Not Found</h1>
+          <p className="mt-4">The event you're looking for doesn't exist or has been removed.</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentUrl = window.location.href;
-  const formattedDate = format(event.date, 'EEEE, MMMM d, yyyy');
-  const formattedTime = format(event.date, 'h:mm a');
+  const formattedDate = format(new Date(event.date), 'EEEE, MMMM d, yyyy');
+  const formattedTime = format(new Date(event.date), 'h:mm a');
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,12 +165,12 @@ const EventPage: React.FC = () => {
       <div 
         className="w-full h-64 bg-muted relative"
         style={{
-          backgroundColor: event.primaryColor,
+          backgroundColor: event.primary_color,
         }}
       >
-        {event.coverImage && (
+        {event.cover_image_url && (
           <img 
-            src={event.coverImage} 
+            src={event.cover_image_url} 
             alt={event.name}
             className="w-full h-full object-cover"
           />
@@ -134,11 +179,11 @@ const EventPage: React.FC = () => {
         {/* Logo */}
         <div className="absolute -bottom-10 left-8">
           <Avatar className="h-20 w-20 border-4 border-background">
-            {event.logoImage ? (
-              <AvatarImage src={event.logoImage} alt="Event logo" />
+            {event.logo_url ? (
+              <AvatarImage src={event.logo_url} alt="Event logo" />
             ) : (
               <AvatarFallback
-                style={{ backgroundColor: event.primaryColor }}
+                style={{ backgroundColor: event.primary_color }}
                 className="text-white text-xl"
               >
                 {event.name.substring(0, 2)}
@@ -191,7 +236,7 @@ const EventPage: React.FC = () => {
           <TicketTierTable 
             ticketTiers={ticketTiers}
             onCheckout={handleCheckout}
-            primaryColor={event.primaryColor}
+            primaryColor={event.primary_color}
           />
         </section>
         
