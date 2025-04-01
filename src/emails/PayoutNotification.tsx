@@ -8,11 +8,7 @@ import {
   Html,
   Preview,
   Section,
-  Table,
-  Td,
   Text,
-  Th,
-  Tr,
 } from '@react-email/components';
 import { format } from 'date-fns';
 
@@ -84,21 +80,23 @@ export const PayoutNotificationEmail: React.FC<PayoutNotificationEmailProps> = (
           
           <Heading as="h3" style={tableHeading}>Event Breakdown</Heading>
           
-          <Table style={table}>
-            <Tr style={tableHeaderRow}>
-              <Th style={tableHeaderCell}>Event</Th>
-              <Th style={tableHeaderCell}>Tickets Sold</Th>
-              <Th style={tableHeaderCell}>Revenue</Th>
-            </Tr>
+          <Section style={tableContainer}>
+            {/* Custom table header */}
+            <div style={tableRow}>
+              <div style={tableHeaderCell}>Event</div>
+              <div style={tableHeaderCell}>Tickets Sold</div>
+              <div style={tableHeaderCell}>Revenue</div>
+            </div>
             
+            {/* Table body */}
             {events.map((event, index) => (
-              <Tr key={index} style={index % 2 === 0 ? tableRow : tableAltRow}>
-                <Td style={tableCell}>{event.name}</Td>
-                <Td style={{ ...tableCell, textAlign: 'center' }}>{event.ticketsSold}</Td>
-                <Td style={{ ...tableCell, textAlign: 'right' }}>${event.revenue.toFixed(2)}</Td>
-              </Tr>
+              <div key={index} style={index % 2 === 0 ? tableRowEven : tableRowOdd}>
+                <div style={tableDataCell}>{event.name}</div>
+                <div style={{...tableDataCell, textAlign: 'center'}}>{event.ticketsSold}</div>
+                <div style={{...tableDataCell, textAlign: 'right'}}>${event.revenue.toFixed(2)}</div>
+              </div>
             ))}
-          </Table>
+          </Section>
           
           <Text style={paragraph}>
             Visit your <a href={dashboardUrl} style={link}>organizer dashboard</a> for more details and to manage your events.
@@ -187,35 +185,43 @@ const tableHeading = {
   marginBottom: '16px',
 };
 
-const table = {
+// New table styles using div-based layout
+const tableContainer = {
   width: '100%',
-  borderCollapse: 'collapse' as const,
   borderRadius: '8px',
   overflow: 'hidden',
   marginBottom: '32px',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
 };
 
-const tableHeaderRow = {
+const tableRow = {
+  display: 'flex' as const,
+  width: '100%',
   backgroundColor: '#6D28D9',
+  color: '#ffffff',
+};
+
+const tableRowEven = {
+  display: 'flex' as const,
+  width: '100%',
+  backgroundColor: '#ffffff',
+};
+
+const tableRowOdd = {
+  display: 'flex' as const,
+  width: '100%',
+  backgroundColor: '#f9f9f9',
 };
 
 const tableHeaderCell = {
+  flex: 1,
   padding: '12px 16px',
-  textAlign: 'left' as const,
-  color: '#ffffff',
   fontWeight: 'bold',
   fontSize: '14px',
 };
 
-const tableRow = {
-  backgroundColor: '#ffffff',
-};
-
-const tableAltRow = {
-  backgroundColor: '#f9f9f9',
-};
-
-const tableCell = {
+const tableDataCell = {
+  flex: 1,
   padding: '12px 16px',
   borderBottom: '1px solid #e5e7eb',
   fontSize: '14px',
