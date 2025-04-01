@@ -4,6 +4,25 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { AuthSession, getSession } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import { Session } from '@supabase/supabase-js';
+
+// Define a function to map Supabase Session to our AuthSession
+const mapSessionToAuthSession = (session: Session | null): AuthSession | null => {
+  if (!session) return null;
+  
+  return {
+    user: {
+      id: session.user.id,
+      email: session.user.email,
+      user_metadata: session.user.user_metadata as { full_name?: string },
+    },
+    session: {
+      expires_at: session.expires_at,
+      token_type: session.token_type,
+      access_token: session.access_token,
+    },
+  };
+};
 
 interface AuthContextType {
   session: AuthSession | null;
@@ -57,8 +76,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session as AuthSession);
+      async (event, supabaseSession) => {
+        const authSession = mapSessionToAuthSession(supabaseSession);
+        setSession(authSession);
         setIsLoading(false);
 
         // Handle specific auth events

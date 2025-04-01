@@ -1,5 +1,6 @@
 
 import { supabase } from './supabase';
+import { Session } from '@supabase/supabase-js';
 
 export interface AuthSession {
   user: {
@@ -76,6 +77,24 @@ export const updatePassword = async (newPassword: string) => {
   }
 };
 
+// Convert Supabase Session to our custom AuthSession type
+const mapSessionToAuthSession = (session: Session | null): AuthSession | null => {
+  if (!session) return null;
+  
+  return {
+    user: {
+      id: session.user.id,
+      email: session.user.email,
+      user_metadata: session.user.user_metadata as { full_name?: string },
+    },
+    session: {
+      expires_at: session.expires_at,
+      token_type: session.token_type,
+      access_token: session.access_token,
+    },
+  };
+};
+
 export const getSession = async (): Promise<AuthSession | null> => {
   const { data, error } = await supabase.auth.getSession();
 
@@ -83,5 +102,5 @@ export const getSession = async (): Promise<AuthSession | null> => {
     throw new Error(error.message);
   }
 
-  return data.session as AuthSession | null;
+  return mapSessionToAuthSession(data.session);
 };
