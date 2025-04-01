@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Ticket, DollarSign, Edit, Eye, Loader2, Share2 } from 'lucide-react';
+import { Calendar, Ticket, DollarSign, Edit, Eye, Loader2, Share2, QrCode } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -14,6 +16,9 @@ import {
 } from '@/components/ui/table';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import EventAnalytics from '@/components/EventAnalytics';
+import QRScanner from '@/components/QRScanner';
+import TestSuite from '@/components/TestSuite';
 
 interface Event {
   id: string;
@@ -39,12 +44,15 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [events, setEvents] = useState<EventWithStats[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     totalEvents: 0,
     ticketsSold: 0,
     revenue: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [activeTab, setActiveTab] = useState("events");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -231,7 +239,7 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <h3 className="text-3xl font-bold mt-2">${stats.revenue.toFixed(2)}</h3>
+                    <h3 className="text-3xl font-bold mt-2 text-purple-600">${stats.revenue.toFixed(2)}</h3>
                   </div>
                   <div className="bg-purple-100 p-3 rounded-full">
                     <DollarSign className="h-6 w-6 text-purple-600" />
@@ -242,110 +250,181 @@ const Dashboard = () => {
           </motion.div>
         </div>
 
-        {/* Events Table */}
-        <Card className="shadow-md">
-          <CardHeader className="bg-white">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Your Events</h2>
-              <Button
-                onClick={() => navigate('/onboarding')}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                Create New Event
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {events.length === 0 ? (
-              <div className="py-12 text-center">
-                <p className="text-muted-foreground">You haven't created any events yet.</p>
-                <Button 
-                  onClick={() => navigate('/onboarding')} 
-                  variant="outline" 
-                  className="mt-4"
+        {/* Tabs */}
+        <Tabs defaultValue="events" className="mb-8" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="events">Your Events</TabsTrigger>
+            <TabsTrigger value="analytics" disabled={!selectedEvent}>Analytics</TabsTrigger>
+            <TabsTrigger value="validation" disabled={!selectedEvent}>Validation</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* Events Tab */}
+        <TabsContent value="events">
+          <Card className="shadow-md">
+            <CardHeader className="bg-white">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Your Events</h2>
+                <Button
+                  onClick={() => navigate('/onboarding')}
+                  className="bg-purple-600 hover:bg-purple-700"
                 >
-                  Create Your First Event
+                  Create New Event
                 </Button>
               </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Event Name</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Template</TableHead>
-                    <TableHead>Tickets Sold</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {events.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell className="font-medium">{event.name}</TableCell>
-                      <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                      <TableCell>{event.location}</TableCell>
-                      <TableCell className="capitalize">{event.template_id}</TableCell>
-                      <TableCell>{event.ticketsSold}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            event.published
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {event.published ? 'Published' : 'Draft'}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/${event.template_id}/customize?id=${event.id}`)}
+            </CardHeader>
+            <CardContent className="p-0">
+              {events.length === 0 ? (
+                <div className="py-12 text-center">
+                  <p className="text-muted-foreground">You haven't created any events yet.</p>
+                  <Button 
+                    onClick={() => navigate('/onboarding')} 
+                    variant="outline" 
+                    className="mt-4"
+                  >
+                    Create Your First Event
+                  </Button>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Event Name</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Template</TableHead>
+                      <TableHead>Tickets Sold</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {events.map((event) => (
+                      <TableRow 
+                        key={event.id} 
+                        className={selectedEvent === event.id ? "bg-purple-50" : ""}
+                        onClick={() => {
+                          setSelectedEvent(event.id);
+                          setActiveTab("analytics");
+                        }}
+                      >
+                        <TableCell className="font-medium">{event.name}</TableCell>
+                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
+                        <TableCell>{event.location}</TableCell>
+                        <TableCell className="capitalize">{event.template_id}</TableCell>
+                        <TableCell>{event.ticketsSold}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              event.published
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}
                           >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Edit
-                          </Button>
-
-                          {!event.published ? (
+                            {event.published ? 'Published' : 'Draft'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            {event.published && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedEvent(event.id);
+                                  setShowQRScanner(true);
+                                }}
+                              >
+                                <QrCode className="h-4 w-4 mr-1" />
+                                Scan
+                              </Button>
+                            )}
+                            
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => navigate(`/events/${event.id}/publish`)}
-                              className="text-purple-600 hover:text-purple-700 border-purple-200 hover:border-purple-300"
-                            >
-                              <Share2 className="h-4 w-4 mr-1" />
-                              Publish
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              className="bg-purple-600 hover:bg-purple-700"
-                              onClick={() => {
-                                // Get username from user's email or use ID
-                                supabase.auth.getUser().then(({ data }) => {
-                                  const username = data.user?.email?.split('@')[0] || data.user?.id;
-                                  navigate(`/${username}/${event.slug}`);
-                                });
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/${event.template_id}/customize?id=${event.id}`);
                               }}
                             >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+
+                            {!event.published ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/events/${event.id}/publish`);
+                                }}
+                                className="text-purple-600 hover:text-purple-700 border-purple-200 hover:border-purple-300"
+                              >
+                                <Share2 className="h-4 w-4 mr-1" />
+                                Publish
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="bg-purple-600 hover:bg-purple-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Get username from user's email or use ID
+                                  supabase.auth.getUser().then(({ data }) => {
+                                    const username = data.user?.email?.split('@')[0] || data.user?.id;
+                                    navigate(`/${username}/${event.slug}`);
+                                  });
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics">
+          {selectedEvent ? (
+            <EventAnalytics eventId={selectedEvent} />
+          ) : (
+            <div className="text-center py-10">
+              <p>Select an event to view analytics</p>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Validation Tab */}
+        <TabsContent value="validation">
+          {selectedEvent ? (
+            <TestSuite eventId={selectedEvent} />
+          ) : (
+            <div className="text-center py-10">
+              <p>Select an event to run validation tests</p>
+            </div>
+          )}
+        </TabsContent>
       </div>
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && selectedEvent && (
+        <QRScanner 
+          open={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          eventId={selectedEvent}
+        />
+      )}
     </div>
   );
 };

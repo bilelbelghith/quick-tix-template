@@ -16,7 +16,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { supabase } from "./lib/supabase";
+import { supabase } from "./integrations/supabase/client";
 
 // Auth component to check if user is logged in
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
