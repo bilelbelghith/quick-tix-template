@@ -117,7 +117,7 @@ const Customizer = () => {
         description: "Your event has been created successfully.",
       });
       
-      navigate(`/${userData.user.email?.split('@')[0] || organizerId}/${slug}`);
+      navigate(`/events/${eventData.id}/publish`);
     } catch (error) {
       console.error('Error saving event:', error);
       toast({
@@ -143,18 +143,27 @@ const Customizer = () => {
           </Link>
           <div className="flex items-center justify-between w-full">
             <h1 className="text-xl font-semibold">Customize Your {templateId?.charAt(0).toUpperCase() + templateId?.slice(1)} Template</h1>
-            <Button 
-              onClick={form.handleSubmit(onSubmit)} 
-              disabled={isLoading}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              {isLoading ? 'Saving...' : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Event
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={form.handleSubmit(onSubmit)} 
+                disabled={isLoading}
+              >
+                {isLoading ? 'Saving...' : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save
+                  </>
+                )}
+              </Button>
+              <Button 
+                onClick={form.handleSubmit(onSubmit)}
+                disabled={isLoading}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {isLoading ? 'Saving...' : 'Save & Publish'}
+              </Button>
+            </div>
           </div>
         </div>
       </header>

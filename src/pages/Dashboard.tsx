@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Ticket, DollarSign, Edit, Eye, Loader2 } from 'lucide-react';
+import { Calendar, Ticket, DollarSign, Edit, Eye, Loader2, Share2 } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -310,20 +309,33 @@ const Dashboard = () => {
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
-                          <Button
-                            size="sm"
-                            className="bg-purple-600 hover:bg-purple-700"
-                            onClick={() => {
-                              // Get username from user's email or use ID
-                              supabase.auth.getUser().then(({ data }) => {
-                                const username = data.user?.email?.split('@')[0] || data.user?.id;
-                                navigate(`/${username}/${event.slug}`);
-                              });
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
+
+                          {!event.published ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => navigate(`/events/${event.id}/publish`)}
+                              className="text-purple-600 hover:text-purple-700 border-purple-200 hover:border-purple-300"
+                            >
+                              <Share2 className="h-4 w-4 mr-1" />
+                              Publish
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700"
+                              onClick={() => {
+                                // Get username from user's email or use ID
+                                supabase.auth.getUser().then(({ data }) => {
+                                  const username = data.user?.email?.split('@')[0] || data.user?.id;
+                                  navigate(`/${username}/${event.slug}`);
+                                });
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

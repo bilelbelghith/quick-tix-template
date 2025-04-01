@@ -9,7 +9,152 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          date: string
+          id: string
+          location: string
+          logo_url: string | null
+          name: string
+          organizer_id: string
+          primary_color: string | null
+          published: boolean | null
+          published_at: string | null
+          slug: string
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          date: string
+          id?: string
+          location: string
+          logo_url?: string | null
+          name: string
+          organizer_id: string
+          primary_color?: string | null
+          published?: boolean | null
+          published_at?: string | null
+          slug: string
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          location?: string
+          logo_url?: string | null
+          name?: string
+          organizer_id?: string
+          primary_color?: string | null
+          published?: boolean | null
+          published_at?: string | null
+          slug?: string
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ticket_tiers: {
+        Row: {
+          available: number
+          created_at: string | null
+          description: string | null
+          event_id: string
+          id: string
+          name: string
+          price: number
+          quantity: number
+        }
+        Insert: {
+          available: number
+          created_at?: string | null
+          description?: string | null
+          event_id: string
+          id?: string
+          name: string
+          price?: number
+          quantity: number
+        }
+        Update: {
+          available?: number
+          created_at?: string | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          name?: string
+          price?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_tiers_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          event_id: string
+          id: string
+          qr_code: string | null
+          quantity: number
+          status: string
+          ticket_tier_id: string
+          total_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          event_id: string
+          id?: string
+          qr_code?: string | null
+          quantity: number
+          status?: string
+          ticket_tier_id: string
+          total_price: number
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          event_id?: string
+          id?: string
+          qr_code?: string | null
+          quantity?: number
+          status?: string
+          ticket_tier_id?: string
+          total_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_ticket_tier_id_fkey"
+            columns: ["ticket_tier_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

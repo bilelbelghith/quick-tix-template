@@ -11,6 +11,7 @@ import Onboarding from "./pages/Onboarding";
 import Customizer from "./pages/Customizer";
 import EventPage from "./pages/EventPage";
 import Dashboard from "./pages/Dashboard";
+import PublishEvent from "./pages/PublishEvent";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
@@ -59,6 +60,14 @@ const AppContent = () => {
         element={
           <ProtectedRoute>
             <Customizer />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/events/:id/publish" 
+        element={
+          <ProtectedRoute>
+            <PublishEvent />
           </ProtectedRoute>
         } 
       />
