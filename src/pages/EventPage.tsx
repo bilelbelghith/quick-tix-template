@@ -92,45 +92,6 @@ const EventPage: React.FC = () => {
     }
   }, [username, eventSlug, toast]);
 
-  const handleCheckout = async (selections: { tierId: string; quantity: number }[]) => {
-    try {
-      // First, verify ticket availability
-      const verifyAvailability = selections.map(selection => {
-        const tier = ticketTiers.find(t => t.id === selection.tierId);
-        if (!tier) throw new Error(`Ticket tier not found`);
-        if (tier.available < selection.quantity) {
-          throw new Error(`Not enough tickets available for ${tier.name}`);
-        }
-        return true;
-      });
-      
-      if (!verifyAvailability.every(v => v === true)) {
-        throw new Error("Some tickets are no longer available");
-      }
-      
-      // Create Stripe checkout session
-      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { 
-          eventId: event?.id,
-          tickets: selections,
-          returnUrl: window.location.href 
-        }
-      });
-      
-      if (error) throw error;
-      
-      // Redirect to Stripe checkout
-      window.location.href = data.url;
-    } catch (error) {
-      console.error('Checkout error:', error);
-      toast({
-        variant: "destructive",
-        title: "Checkout failed",
-        description: error instanceof Error ? error.message : "There was an error processing your request.",
-      });
-    }
-  };
-
   // Show loading state
   if (isLoading) {
     return (
@@ -235,8 +196,12 @@ const EventPage: React.FC = () => {
           
           <TicketTierTable 
             ticketTiers={ticketTiers}
-            onCheckout={handleCheckout}
             primaryColor={event.primary_color}
+            eventId={event.id}
+            eventName={event.name}
+            eventDate={new Date(event.date)}
+            eventLocation={event.location}
+            logoUrl={event.logo_url}
           />
         </section>
         
