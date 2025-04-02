@@ -1,14 +1,13 @@
 
-export type AuthFormMode = 'login' | 'signup' | 'reset' | 'newPassword';
-
-export interface AuthFormState {
+export interface AuthFormData {
   email: string;
   password: string;
   confirmPassword?: string;
   fullName?: string;
 }
 
-export interface AuthError {
-  message: string;
-  field?: keyof AuthFormState;
+export interface AuthResponseData {
+  success: boolean;
+  message?: string;
+  error?: string;
 }
