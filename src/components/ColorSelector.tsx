@@ -28,7 +28,7 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({
           className={`
             w-12 h-12 rounded-full relative flex items-center justify-center
             transition-all
-            ${value === option.value ? 'ring-4 ring-offset-2 ring-primary/40' : 'hover:scale-110'}`}
+            ${value === option.value ? 'ring-4 ring-offset-2 ring-blue-500/40' : 'hover:scale-110'}`}
           style={{ backgroundColor: option.value }}
           title={option.label}
         >

@@ -12,7 +12,7 @@ const baseEventSchema = {
   description: z.string().optional(),
   coverImage: z.string().optional(),
   logoImage: z.string().optional(),
-  primaryColor: z.string().default("#6D28D9"),
+  primaryColor: z.string().default("#2563EB"),
   organizerName: z.string().optional(),
   contactEmail: z.string().email().optional(),
   capacity: z.number().int().positive().optional(),
@@ -77,7 +77,7 @@ export const getDefaultEventValues = (templateType: string): Partial<EventFormVa
     time: "19:00",
     location: "123 Main St, Anytown, USA",
     description: "Join us for an amazing event!",
-    primaryColor: "#6D28D9",
+    primaryColor: "#2563EB",
     organizerName: "",
     contactEmail: "",
     capacity: 130,
@@ -121,8 +121,8 @@ export const getDefaultEventValues = (templateType: string): Partial<EventFormVa
 };
 
 export const colorOptions = [
-  { value: "#6D28D9", label: "Purple" },
   { value: "#2563EB", label: "Blue" },
+  { value: "#0EA5E9", label: "Sky" },
   { value: "#059669", label: "Green" },
   { value: "#DC2626", label: "Red" },
 ];

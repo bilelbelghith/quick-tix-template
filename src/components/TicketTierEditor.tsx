@@ -20,7 +20,7 @@ interface TicketTierEditorProps {
 
 const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
   const handleAddTier = () => {
-    const newTier = {
+    const newTier: TicketTier = {
       name: `Ticket Tier ${ticketTiers.length + 1}`,
       price: 0,
       description: "",
