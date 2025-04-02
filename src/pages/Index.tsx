@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -7,7 +6,7 @@ import FeatureCard from "@/components/FeatureCard";
 import { Link } from "react-router-dom";
 import { 
   LayoutTemplate, Palette, Ticket, Sparkles, Globe, Clock, CreditCard, 
-  Users, ArrowRight, Play, Check, ChevronRight, Star 
+  Users, ArrowRight, Check, ChevronRight, Star 
 } from "lucide-react";
 import { Player } from '@lottiefiles/react-lottie-player';
 import { motion } from 'framer-motion';
@@ -134,14 +133,6 @@ const Index = () => {
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </motion.button>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="inline-flex items-center px-8 py-4 text-lg font-semibold rounded-full"
-                >
-                  <Play className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </Button>
               </div>
             </motion.div>
 
@@ -151,66 +142,28 @@ const Index = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <Player
-                autoplay
-                loop
-                src="https://assets10.lottiefiles.com/packages/lf20_xvrofzfk.json"
-                style={{ height: '400px', width: '100%' }}
-                background="transparent"
-                speed={1}
-                renderer="svg"
-                rendererSettings={{
-                  preserveAspectRatio: 'xMidYMid slice',
-                  progressiveLoad: true,
-                }}
-              />
+              {/* 3-Step Visual Demo */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StepAnimation 
+                  animation={templateAnimation}
+                  title="Pick a Template" 
+                  description="Choose from our professionally designed templates for any event type"
+                  delay={0}
+                />
+                <StepAnimation 
+                  animation={customizeAnimation}
+                  title="Customize" 
+                  description="Add your branding, event details, and ticket types"
+                  delay={200}
+                />
+                <StepAnimation 
+                  animation={publishAnimation}
+                  title="Publish & Sell" 
+                  description="Go live and start selling tickets instantly"
+                  delay={400}
+                />
+              </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3-Step Visual Demo */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 
-              className="text-3xl md:text-4xl font-bold mb-4"
-              style={{ opacity: 0 }}
-              data-aos="fade-up"
-            >
-              How It Works
-            </h2>
-            <p 
-              className="text-lg text-muted-foreground max-w-2xl mx-auto"
-              style={{ 
-                opacity: 0,
-                animationDelay: '200ms' 
-              }}
-              data-aos="fade-up"
-            >
-              Create and launch your event page in minutes with our simple three-step process
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <StepAnimation 
-              animation={templateAnimation}
-              title="Pick a Template" 
-              description="Choose from our professionally designed templates for any event type"
-              delay={0}
-            />
-            <StepAnimation 
-              animation={customizeAnimation}
-              title="Customize" 
-              description="Add your branding, event details, and ticket types"
-              delay={200}
-            />
-            <StepAnimation 
-              animation={publishAnimation}
-              title="Publish & Sell" 
-              description="Go live and start selling tickets instantly"
-              delay={400}
-            />
           </div>
         </div>
       </section>
