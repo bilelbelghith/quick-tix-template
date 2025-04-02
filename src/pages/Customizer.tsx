@@ -1,12 +1,12 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Calendar, MapPin, Save, Clock, Users, 
-  Mail, Edit, Music, Link as LinkIcon
+  Mail, Edit, Music, Link as LinkIcon, GraduationCap,
+  Trophy, User, Layers, Award, Clock3, Flag, Dumbbell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import ImageUploader from '@/components/ImageUploader';
-import { eventSchema, EventFormValues, defaultEventValues, colorOptions } from '@/lib/schemas/event-schema';
+import { eventSchema, EventFormValues, getDefaultEventValues, colorOptions } from '@/lib/schemas/event-schema';
 import { useToast } from '@/hooks/use-toast';
 import EventPreview from '@/components/EventPreview';
 import ColorSelector from '@/components/ColorSelector';
@@ -33,7 +33,7 @@ const Customizer = () => {
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
-    defaultValues: defaultEventValues,
+    defaultValues: getDefaultEventValues(templateId || 'concert'),
   });
 
   const uploadImage = async (file: string, path: string): Promise<string | null> => {
@@ -86,25 +86,57 @@ const Customizer = () => {
         logoUrl = await uploadImage(data.logoImage, `events/${organizerId}/logos`);
       }
       
+      const eventBaseData = {
+        organizer_id: organizerId,
+        name: data.name,
+        slug: slug,
+        date: data.date.toISOString(),
+        location: data.location,
+        cover_image_url: coverImageUrl,
+        logo_url: logoUrl,
+        primary_color: data.primaryColor,
+        template_id: templateId || 'concert',
+        description: data.description,
+        organizer_name: data.organizerName,
+        contact_email: data.contactEmail,
+        capacity: data.capacity,
+        is_online: data.isOnline,
+        event_time: data.time
+      };
+      
+      let templateMetadata = {};
+      
+      if (templateId === 'concert') {
+        templateMetadata = {
+          artist_name: (data as any).artistName,
+          genre: (data as any).genre,
+          opening_act: (data as any).openingAct,
+          duration: (data as any).duration
+        };
+      } else if (templateId === 'workshop') {
+        templateMetadata = {
+          instructor_name: (data as any).instructorName,
+          skill_level: (data as any).skillLevel,
+          prerequisites: (data as any).prerequisites,
+          materials: (data as any).materials
+        };
+      } else if (templateId === 'sports') {
+        templateMetadata = {
+          team_names: (data as any).teamNames,
+          sport_type: (data as any).sportType,
+          competition_level: (data as any).competitionLevel,
+          rules: (data as any).rules
+        };
+      }
+      
+      const fullEventData = {
+        ...eventBaseData,
+        metadata: templateMetadata
+      };
+      
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .insert({
-          organizer_id: organizerId,
-          name: data.name,
-          slug: slug,
-          date: data.date.toISOString(),
-          location: data.location,
-          cover_image_url: coverImageUrl,
-          logo_url: logoUrl,
-          primary_color: data.primaryColor,
-          template_id: templateId || 'concert',
-          description: data.description,
-          organizer_name: data.organizerName,
-          contact_email: data.contactEmail,
-          capacity: data.capacity,
-          is_online: data.isOnline,
-          event_time: data.time
-        })
+        .insert(fullEventData)
         .select()
         .single();
       
@@ -147,6 +179,19 @@ const Customizer = () => {
 
   const formValues = form.watch();
 
+  const getTemplateIcon = () => {
+    switch (templateId) {
+      case 'concert':
+        return <Music className="h-5 w-5" />;
+      case 'workshop':
+        return <GraduationCap className="h-5 w-5" />;
+      case 'sports':
+        return <Trophy className="h-5 w-5" />;
+      default:
+        return <Calendar className="h-5 w-5" />;
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -157,7 +202,12 @@ const Customizer = () => {
             </Button>
           </Link>
           <div className="flex items-center justify-between w-full">
-            <h1 className="text-xl font-semibold">Customize Your {templateId?.charAt(0).toUpperCase() + templateId?.slice(1)} Template</h1>
+            <h1 className="text-xl font-semibold flex items-center">
+              {getTemplateIcon()}
+              <span className="ml-2">
+                Customize Your {templateId?.charAt(0).toUpperCase() + templateId?.slice(1)} Template
+              </span>
+            </h1>
             <div className="flex gap-2">
               <Button 
                 variant="outline"
@@ -192,8 +242,9 @@ const Customizer = () => {
                 onValueChange={setActiveTab}
                 className="mb-6"
               >
-                <TabsList className="grid grid-cols-3 mb-6">
+                <TabsList className="grid grid-cols-4 mb-6">
                   <TabsTrigger value="details">Basic Info</TabsTrigger>
+                  <TabsTrigger value="template">Template Details</TabsTrigger>
                   <TabsTrigger value="appearance">Appearance</TabsTrigger>
                   <TabsTrigger value="tickets">Tickets</TabsTrigger>
                 </TabsList>
@@ -385,6 +436,246 @@ const Customizer = () => {
                       </FormItem>
                     )}
                   />
+                </TabsContent>
+                
+                <TabsContent value="template" className="space-y-6">
+                  {templateId === 'concert' && (
+                    <>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Music className="h-5 w-5 text-purple-600" />
+                        <h2 className="text-lg font-medium">Concert Details</h2>
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="artistName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Artist/Band Name</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input placeholder="Featured Artist/Band" {...field} />
+                                <User className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="genre"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Music Genre</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input placeholder="Rock, Pop, Jazz, etc." {...field} />
+                                  <Layers className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="duration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Concert Duration</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input placeholder="2 hours" {...field} />
+                                  <Clock3 className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="openingAct"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Opening Act</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input placeholder="Supporting artist or band (optional)" {...field} />
+                                <Users className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
+                  
+                  {templateId === 'workshop' && (
+                    <>
+                      <div className="flex items-center gap-2 mb-4">
+                        <GraduationCap className="h-5 w-5 text-blue-600" />
+                        <h2 className="text-lg font-medium">Workshop Details</h2>
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="instructorName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Instructor Name</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input placeholder="Workshop Instructor" {...field} />
+                                <User className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="skillLevel"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Skill Level</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input placeholder="Beginner, Intermediate, Advanced" {...field} />
+                                  <Layers className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="prerequisites"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Prerequisites</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input placeholder="Any required prior knowledge" {...field} />
+                                  <Award className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="materials"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Required Materials</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input placeholder="What attendees should bring" {...field} />
+                                <Layers className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
+                  
+                  {templateId === 'sports' && (
+                    <>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Trophy className="h-5 w-5 text-green-600" />
+                        <h2 className="text-lg font-medium">Sports Event Details</h2>
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="teamNames"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Teams or Participants</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input placeholder="Team A vs Team B" {...field} />
+                                <Users className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="sportType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Sport Type</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input placeholder="Basketball, Soccer, etc." {...field} />
+                                  <Dumbbell className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="competitionLevel"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Competition Level</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input placeholder="Amateur, Professional, etc." {...field} />
+                                  <Flag className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <FormField
+                        control={form.control}
+                        name="rules"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rules & Regulations</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Special rules for this event (optional)"
+                                className="min-h-[80px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="appearance" className="space-y-6">

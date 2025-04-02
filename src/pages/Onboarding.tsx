@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Music, GraduationCap, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -14,6 +14,9 @@ interface Template {
   description: string;
   image: string;
   demoImage: string;
+  icon: React.ReactNode;
+  color: string;
+  features: string[];
 }
 
 const templates: Template[] = [
@@ -23,6 +26,15 @@ const templates: Template[] = [
     description: 'Perfect for music events and performances',
     image: '/placeholder.svg',
     demoImage: '/placeholder.svg',
+    icon: <Music className="h-5 w-5" />,
+    color: 'bg-purple-100 text-purple-600',
+    features: [
+      'Artist profiles and lineup',
+      'Genre categorization',
+      'Opening act information',
+      'Music-oriented design elements',
+      'Duration details'
+    ]
   },
   {
     id: 'workshop',
@@ -30,6 +42,15 @@ const templates: Template[] = [
     description: 'Ideal for classes, webinars and workshops',
     image: '/placeholder.svg',
     demoImage: '/placeholder.svg',
+    icon: <GraduationCap className="h-5 w-5" />,
+    color: 'bg-blue-100 text-blue-600',
+    features: [
+      'Instructor information',
+      'Skill level indicators',
+      'Prerequisites listing',
+      'Materials needed section',
+      'Educational design elements'
+    ]
   },
   {
     id: 'sports',
@@ -37,6 +58,15 @@ const templates: Template[] = [
     description: 'Great for matches, tournaments and competitions',
     image: '/placeholder.svg',
     demoImage: '/placeholder.svg',
+    icon: <Trophy className="h-5 w-5" />,
+    color: 'bg-green-100 text-green-600',
+    features: [
+      'Team information',
+      'Sport type categorization',
+      'Competition level details',
+      'Rules and regulations section',
+      'Athletic design elements'
+    ]
   },
 ];
 
@@ -80,10 +110,28 @@ const Onboarding = () => {
                   alt={template.name} 
                   className="w-full h-full object-cover"
                 />
+                <div className="absolute top-4 right-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${template.color}`}>
+                    {template.icon}
+                    <span className="ml-1">{template.name}</span>
+                  </span>
+                </div>
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{template.name}</h3>
-                <p className="text-muted-foreground mb-6">{template.description}</p>
+                <h3 className="text-xl font-semibold mb-2 flex items-center">
+                  {template.icon}
+                  <span className="ml-2">{template.name}</span>
+                </h3>
+                <p className="text-muted-foreground mb-4">{template.description}</p>
+                
+                <ul className="mb-6 space-y-1">
+                  {template.features.map((feature, index) => (
+                    <li key={index} className="text-sm flex items-center">
+                      <span className="text-green-500 mr-2">✓</span> {feature}
+                    </li>
+                  ))}
+                </ul>
+                
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button 
                     variant="outline" 
