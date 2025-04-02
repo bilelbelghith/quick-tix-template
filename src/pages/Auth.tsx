@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -41,7 +40,7 @@ const Auth = () => {
     setError(null);
     
     try {
-      if (mode === 'login') {
+      if (mode === 'login' || mode === 'signin') {
         await signIn(data.email, data.password);
         // Navigation is handled by the auth state change in AuthContext
       } else if (mode === 'signup') {

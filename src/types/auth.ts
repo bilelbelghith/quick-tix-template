@@ -12,8 +12,8 @@ export interface AuthResponseData {
   error?: string;
 }
 
-// Add the missing AuthFormMode and AuthError types 
-export type AuthFormMode = 'signin' | 'signup' | 'reset';
+// Updated AuthFormMode to include all used modes
+export type AuthFormMode = 'login' | 'signin' | 'signup' | 'reset' | 'newPassword';
 
 export interface AuthError {
   message: string;

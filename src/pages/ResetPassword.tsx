@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { updatePassword } from '@/lib/auth';
 import AuthForm from '@/components/auth/AuthForm';
-import { AuthError } from '@/types/auth';
+import { AuthError, AuthFormMode } from '@/types/auth';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 

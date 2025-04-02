@@ -73,8 +73,9 @@ interface AuthFormProps {
   onModeChange?: (mode: AuthFormMode) => void;
 }
 
-const formLabels = {
+const formLabels: Record<AuthFormMode, string> = {
   login: 'Sign In',
+  signin: 'Sign In',
   signup: 'Create Account',
   reset: 'Reset Password',
   newPassword: 'Set New Password',
@@ -394,6 +395,7 @@ const AuthForm = ({ mode, onSubmit, error, isLoading = false, onModeChange }: Au
   const renderFooter = () => {
     switch (mode) {
       case 'login':
+      case 'signin':
         return (
           <div className="flex flex-col space-y-4 text-sm">
             <button
