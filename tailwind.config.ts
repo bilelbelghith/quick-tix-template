@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -68,6 +67,8 @@ export default {
 					lightBlue: '#38BDF8',
 					cyan: '#06B6D4',
 					sky: '#0EA5E9',
+					purple: '#8B5CF6',
+					lightPurple: '#C4B5FD',
 				}
 			},
 			borderRadius: {
@@ -100,7 +101,11 @@ export default {
                 'float': {
                     '0%, 100%': { transform: 'translateY(0)' },
                     '50%': { transform: 'translateY(-10px)' },
-                }
+                },
+				'scaleY': {
+					'0%': { transform: 'scaleY(0)', opacity: '0' },
+					'100%': { transform: 'scaleY(1)', opacity: '1' },
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -109,6 +114,7 @@ export default {
 				'feature-hover': 'feature-hover 0.3s ease forwards',
 				'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
                 'float': 'float 6s ease-in-out infinite',
+				'scaleY': 'scaleY 0.3s ease-out forwards',
 			}
 		}
 	},
