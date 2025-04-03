@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Music, GraduationCap, Trophy } from 'lucide-react';
+import { ArrowLeft, Music, GraduationCap, Trophy, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -21,13 +20,29 @@ interface Template {
 
 const templates: Template[] = [
   {
+    id: 'standard',
+    name: 'Standard',
+    description: 'A flexible template for any type of event',
+    image: '/placeholder.svg',
+    demoImage: '/placeholder.svg',
+    icon: <Calendar className="h-5 w-5" />,
+    color: 'bg-blue-100 text-blue-600',
+    features: [
+      'Simple and clean design',
+      'All basic event information',
+      'Customizable layout',
+      'Multiple ticket tiers',
+      'Event countdown'
+    ]
+  },
+  {
     id: 'concert',
     name: 'Concert',
     description: 'Perfect for music events and performances',
     image: '/placeholder.svg',
     demoImage: '/placeholder.svg',
     icon: <Music className="h-5 w-5" />,
-    color: 'bg-purple-100 text-purple-600',
+    color: 'bg-blue-100 text-blue-600',
     features: [
       'Artist profiles and lineup',
       'Genre categorization',
@@ -59,7 +74,7 @@ const templates: Template[] = [
     image: '/placeholder.svg',
     demoImage: '/placeholder.svg',
     icon: <Trophy className="h-5 w-5" />,
-    color: 'bg-green-100 text-green-600',
+    color: 'bg-blue-100 text-blue-600',
     features: [
       'Team information',
       'Sport type categorization',
@@ -96,7 +111,7 @@ const Onboarding = () => {
           <h1 className="text-3xl md:text-4xl font-bold">Choose Your Template</h1>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {templates.map((template) => (
             <motion.div
               key={template.id}
@@ -141,7 +156,7 @@ const Onboarding = () => {
                     View Demo
                   </Button>
                   <Link to={`/${template.id}/customize`} className="flex-1">
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
                       Use Template
                     </Button>
                   </Link>

@@ -30,6 +30,12 @@ const baseEventSchema = {
   ]),
 };
 
+// Standard event schema (new)
+const standardEventSchema = z.object({
+  ...baseEventSchema,
+  // No additional specific fields for standard events
+});
+
 // Concert-specific schema fields
 const concertEventSchema = z.object({
   ...baseEventSchema,
@@ -62,6 +68,7 @@ const sportsEventSchema = z.object({
 
 // Combine all template types into a discriminated union
 export const eventSchema = z.discriminatedUnion('templateType', [
+  standardEventSchema.extend({ templateType: z.literal('standard') }),
   concertEventSchema.extend({ templateType: z.literal('concert') }),
   workshopEventSchema.extend({ templateType: z.literal('workshop') }),
   sportsEventSchema.extend({ templateType: z.literal('sports') }),
@@ -91,6 +98,10 @@ export const getDefaultEventValues = (templateType: string): Partial<EventFormVa
 
   // Add template-specific defaults
   switch (templateType) {
+    case 'standard':
+      return {
+        ...baseDefaults,
+      };
     case 'concert':
       return {
         ...baseDefaults,

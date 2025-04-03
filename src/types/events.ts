@@ -21,7 +21,7 @@ export interface EventData {
   coverImage?: string;
   logoImage?: string;
   primaryColor?: string;
-  templateType?: 'concert' | 'workshop' | 'sports';
+  templateType?: 'standard' | 'concert' | 'workshop' | 'sports';
   // Additional fields specific to template types
   performers?: string[];
   venue?: string;

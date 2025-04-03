@@ -1,13 +1,19 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Music, BookOpen, Trophy } from 'lucide-react';
+import { ArrowRight, Music, BookOpen, Trophy, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const templateCategories = [
+  {
+    title: "Standard Events",
+    description: "Simple, versatile template for any type of event",
+    icon: <Calendar className="h-8 w-8 text-blue-500" />,
+    link: "/use-cases/standard",
+    features: ["Event details", "Ticket options", "Customizable layout"]
+  },
   {
     title: "Music Events",
     description: "Perfect for concerts, festivals, and live performances",
@@ -73,7 +79,7 @@ const Templates: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {templateCategories.map((category, index) => (
             <motion.div key={index} variants={itemVariants} className="h-full">

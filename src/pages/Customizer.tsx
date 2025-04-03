@@ -128,6 +128,8 @@ const Customizer = () => {
           competition_level: (data as any).competitionLevel,
           rules: (data as any).rules
         };
+      } else if (templateId === 'standard') {
+        templateMetadata = {};
       }
       
       const fullEventData = {
@@ -193,6 +195,8 @@ const Customizer = () => {
         return <GraduationCap className="h-5 w-5" />;
       case 'sports':
         return <Trophy className="h-5 w-5" />;
+      case 'standard':
+        return <Calendar className="h-5 w-5" />;
       default:
         return <Calendar className="h-5 w-5" />;
     }
@@ -445,6 +449,26 @@ const Customizer = () => {
                 </TabsContent>
                 
                 <TabsContent value="template" className="space-y-6">
+                  {templateId === 'standard' && (
+                    <>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Calendar className="h-5 w-5 text-blue-600" />
+                        <h2 className="text-lg font-medium">Standard Event Details</h2>
+                      </div>
+                      
+                      <p className="text-muted-foreground mb-4">
+                        The standard template includes all the basic event information. 
+                        No additional fields are required.
+                      </p>
+                      
+                      <div className="bg-blue-50 rounded-md p-4">
+                        <p className="text-sm text-blue-700">
+                          Tip: Add all your event details in the "Basic Info" tab. You can customize the appearance in the "Appearance" tab.
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  
                   {templateId === 'concert' && (
                     <>
                       <div className="flex items-center gap-2 mb-4">
