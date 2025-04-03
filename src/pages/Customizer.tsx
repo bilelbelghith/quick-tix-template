@@ -144,12 +144,12 @@ const Customizer = () => {
       if (eventError) throw eventError;
       
       if (data.ticketTiers && data.ticketTiers.length > 0) {
-        const ticketTiersData: TicketTier[] = data.ticketTiers.map(tier => ({
-          name: tier.name,
-          price: tier.price,
+        const ticketTiersData = data.ticketTiers.map(tier => ({
+          name: tier.name || '',
+          price: tier.price || 0,
           description: tier.description || '',
-          quantity: tier.quantity
-        }));
+          quantity: tier.quantity || 0
+        } as TicketTier));
         
         const { error: tiersError } = await supabase
           .from('ticket_tiers')

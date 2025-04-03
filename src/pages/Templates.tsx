@@ -11,21 +11,21 @@ const templateCategories = [
   {
     title: "Music Events",
     description: "Perfect for concerts, festivals, and live performances",
-    icon: <Music className="h-8 w-8 text-purple-500" />,
+    icon: <Music className="h-8 w-8 text-blue-500" />,
     link: "/use-cases/music",
     features: ["Seating charts", "Artist profiles", "Performance schedules"]
   },
   {
     title: "Workshops & Conferences",
     description: "Ideal for educational events and professional gatherings",
-    icon: <BookOpen className="h-8 w-8 text-purple-500" />,
+    icon: <BookOpen className="h-8 w-8 text-blue-500" />,
     link: "/use-cases/workshops",
     features: ["Agenda planning", "Speaker bios", "Session registration"]
   },
   {
     title: "Sports Events",
     description: "Great for games, tournaments, and athletic competitions",
-    icon: <Trophy className="h-8 w-8 text-purple-500" />,
+    icon: <Trophy className="h-8 w-8 text-blue-500" />,
     link: "/use-cases/sports",
     features: ["Team matchups", "Venue maps", "Competition brackets"]
   }
@@ -52,7 +52,7 @@ const Templates: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
       <Navbar />
       <div className="container mx-auto pt-28 px-4 pb-20">
         <motion.div 
@@ -61,7 +61,7 @@ const Templates: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-800">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
             Event Templates
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
@@ -77,7 +77,7 @@ const Templates: React.FC = () => {
         >
           {templateCategories.map((category, index) => (
             <motion.div key={index} variants={itemVariants} className="h-full">
-              <Card className="h-full hover:shadow-lg transition-shadow duration-300 hover:border-purple-300">
+              <Card className="h-full hover:shadow-lg transition-shadow duration-300 hover:border-blue-300">
                 <CardHeader>
                   <div className="mb-4">{category.icon}</div>
                   <CardTitle className="text-2xl">{category.title}</CardTitle>
@@ -87,7 +87,7 @@ const Templates: React.FC = () => {
                   <ul className="space-y-2">
                     {category.features.map((feature, i) => (
                       <li key={i} className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 rounded-full bg-purple-600"></div>
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-600"></div>
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -95,7 +95,7 @@ const Templates: React.FC = () => {
                 </CardContent>
                 <CardFooter>
                   <Link to={category.link} className="w-full">
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
                       View Template <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -109,12 +109,12 @@ const Templates: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-16 bg-purple-100 rounded-xl p-8 text-center"
+          className="mt-16 bg-blue-100 rounded-xl p-8 text-center"
         >
-          <h2 className="text-2xl font-bold text-purple-800 mb-4">Ready to create your event?</h2>
+          <h2 className="text-2xl font-bold text-blue-800 mb-4">Ready to create your event?</h2>
           <p className="text-gray-700 mb-6">Start with one of our templates and customize it to match your brand.</p>
           <Link to="/onboarding">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
               Get Started Now
             </Button>
           </Link>

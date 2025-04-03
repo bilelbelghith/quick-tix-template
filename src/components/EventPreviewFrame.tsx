@@ -21,7 +21,7 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
           variant={viewMode === 'desktop' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setViewMode('desktop')}
-          className={viewMode === 'desktop' ? 'bg-purple-600 hover:bg-purple-700' : ''}
+          className={viewMode === 'desktop' ? 'bg-blue-600 hover:bg-blue-700' : ''}
         >
           <Monitor className="h-4 w-4 mr-2" />
           Desktop
@@ -30,7 +30,7 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
           variant={viewMode === 'mobile' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setViewMode('mobile')}
-          className={viewMode === 'mobile' ? 'bg-purple-600 hover:bg-purple-700' : ''}
+          className={viewMode === 'mobile' ? 'bg-blue-600 hover:bg-blue-700' : ''}
         >
           <Smartphone className="h-4 w-4 mr-2" />
           Mobile
@@ -109,7 +109,7 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
               </div>
               
               <div className="mt-6 w-full h-12 rounded-md" 
-                style={{ backgroundColor: event.primary_color || '#6D28D9' }}
+                style={{ backgroundColor: event.primary_color || '#2563EB' }}
               ></div>
             </div>
           </div>

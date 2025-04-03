@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -67,8 +68,8 @@ export default {
 					lightBlue: '#38BDF8',
 					cyan: '#06B6D4',
 					sky: '#0EA5E9',
-					purple: '#8B5CF6',
-					lightPurple: '#C4B5FD',
+					darkBlue: '#1E40AF',
+					lightBlue: '#93C5FD',
 				}
 			},
 			borderRadius: {

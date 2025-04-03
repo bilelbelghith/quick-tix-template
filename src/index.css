@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 262 83% 58%;
+    --primary: 214 83% 58%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -31,7 +31,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
+    --ring: 214 83% 58%;
 
     --radius: 0.5rem;
 
@@ -55,7 +55,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 262 83% 58%;
+    --primary: 214 83% 58%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -98,7 +98,7 @@
 }
 
 .animated-gradient {
-  background: linear-gradient(45deg, #8B5CF6, #6D28D9, #4C1D95, #8B5CF6);
+  background: linear-gradient(45deg, #2563EB, #1D4ED8, #1E40AF, #2563EB);
   background-size: 300% 300%;
   animation: gradient-animation 6s ease infinite;
 }
@@ -124,7 +124,7 @@
 }
 
 .tixify-shadow {
-  box-shadow: 0 10px 25px -5px rgba(109, 40, 217, 0.1), 0 8px 10px -6px rgba(109, 40, 217, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(37, 99, 235, 0.1);
 }
 
 .nav-item {
@@ -138,7 +138,7 @@
   left: 0;
   width: 0%;
   height: 2px;
-  background-color: theme('colors.purple.600');
+  background-color: theme('colors.blue.600');
   transition: width 0.3s ease;
 }
 
@@ -151,4 +151,3 @@
   transform-origin: top;
   min-width: 200px;
 }
-
