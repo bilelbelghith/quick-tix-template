@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { signIn, signUp, resetPassword } from '@/lib/auth';
-import AuthForm from '@/components/auth/AuthForm';
+import { AuthForm } from '@/components/auth/AuthForm';
 import { AuthFormMode, AuthError } from '@/types/auth';
 import Navbar from '@/components/Navbar';
 
@@ -12,7 +12,6 @@ const Auth = () => {
   const location = useLocation();
   const { toast } = useToast();
   
-  // Determine initial mode from URL path
   const getInitialMode = (): AuthFormMode => {
     const path = location.pathname;
     if (path === '/auth/signup') return 'signup';
@@ -28,7 +27,6 @@ const Auth = () => {
     setError(null);
     setMode(newMode);
     
-    // Update URL without refreshing
     let path = '/auth';
     if (newMode === 'signup') path = '/auth/signup';
     if (newMode === 'reset') path = '/auth/reset-password';
@@ -42,7 +40,6 @@ const Auth = () => {
     try {
       if (mode === 'login' || mode === 'signin') {
         await signIn(data.email, data.password);
-        // Navigation is handled by the auth state change in AuthContext
       } else if (mode === 'signup') {
         await signUp(data.email, data.password, data.fullName);
         toast({

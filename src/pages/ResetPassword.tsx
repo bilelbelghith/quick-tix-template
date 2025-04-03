@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { updatePassword } from '@/lib/auth';
-import AuthForm from '@/components/auth/AuthForm';
+import { AuthForm } from '@/components/auth/AuthForm'; // Changed from default to named import
 import { AuthError, AuthFormMode } from '@/types/auth';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
