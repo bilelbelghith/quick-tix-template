@@ -168,6 +168,43 @@ const CheckoutForm = ({
         primaryColor
       });
       
+      // Convert PDF to base64 for sending to edge function
+      const reader = new FileReader();
+      reader.readAsDataURL(pdfBlob);
+      reader.onloadend = async () => {
+        if (typeof reader.result === 'string') {
+          const base64data = reader.result.split(',')[1];
+          
+          // Send email with ticket via edge function
+          const { error } = await supabase.functions.invoke('send-ticket-email', {
+            body: {
+              ticketId,
+              recipientEmail: customerEmail,
+              recipientName: customerName,
+              eventName,
+              eventDate,
+              eventLocation,
+              ticketType: tickets[0].name,
+              pdfBase64: base64data
+            }
+          });
+          
+          if (error) {
+            console.error('Error sending ticket email:', error);
+            toast({
+              title: "Ticket delivery issue",
+              description: "There was a problem sending your tickets by email. You can still download them now.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Tickets sent!",
+              description: `Your tickets have been sent to ${customerEmail}`,
+            });
+          }
+        }
+      };
+      
       // Create object URL for download
       const url = URL.createObjectURL(pdfBlob);
       
@@ -179,9 +216,6 @@ const CheckoutForm = ({
       
       // Clean up
       URL.revokeObjectURL(url);
-      
-      // In a real implementation, we would send the email with the ticket PDF
-      // Since we don't have email functionality set up, we're just downloading the PDF
     } catch (error) {
       console.error('Error generating ticket:', error);
       toast({
