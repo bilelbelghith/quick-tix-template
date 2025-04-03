@@ -19,9 +19,9 @@ const baseEventSchema = {
   isOnline: z.boolean().default(false),
   ticketTiers: z.array(
     z.object({
-      name: z.string(),
-      price: z.number().positive(),
-      description: z.string().optional(),
+      name: z.string().min(1, "Tier name is required"),
+      price: z.number().nonnegative(),
+      description: z.string().default(""),
       quantity: z.number().int().positive(),
     })
   ).default([

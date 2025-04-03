@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-
-export interface TicketTier {
-  name: string;
-  price: number;
-  description?: string;
-  quantity: number;
-}
+import { TicketTier } from '@/types/events';
 
 interface TicketTierEditorProps {
   ticketTiers: TicketTier[];
