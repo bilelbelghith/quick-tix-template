@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase, generateUniqueSlug } from '@/lib/supabase';
+import { TicketTier } from '@/types/events';
 
 const Customizer = () => {
   const { templateId } = useParams();
@@ -143,18 +144,23 @@ const Customizer = () => {
       if (eventError) throw eventError;
       
       if (data.ticketTiers && data.ticketTiers.length > 0) {
-        const ticketTiersData = data.ticketTiers.map(tier => ({
-          event_id: eventData.id,
+        const ticketTiersData: TicketTier[] = data.ticketTiers.map(tier => ({
           name: tier.name,
           price: tier.price,
-          description: tier.description,
-          quantity: tier.quantity,
-          available: tier.quantity
+          description: tier.description || '',
+          quantity: tier.quantity
         }));
         
         const { error: tiersError } = await supabase
           .from('ticket_tiers')
-          .insert(ticketTiersData);
+          .insert(ticketTiersData.map(tier => ({
+            event_id: eventData.id,
+            name: tier.name,
+            price: tier.price,
+            description: tier.description,
+            quantity: tier.quantity,
+            available: tier.quantity
+          })));
         
         if (tiersError) throw tiersError;
       }
