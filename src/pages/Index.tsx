@@ -22,7 +22,6 @@ import { motion } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 
-// Testimonial data
 const testimonials = [
   {
     quote: "Saved 20 hours vs Eventbrite!",
@@ -93,15 +92,12 @@ const steps = [
 ];
 
 const Index = () => {
-  // For the animated counter
   const [count, setCount] = useState(0);
   const targetCount = 500;
 
-  // To handle the fade-in animations on scroll
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    // Setup intersection observer for animations
     observerRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -114,17 +110,14 @@ const Index = () => {
       { threshold: 0.1 }
     );
 
-    // Observe all elements with data-aos attribute
     document.querySelectorAll("[data-aos]").forEach((element) => {
       observerRef.current?.observe(element);
     });
 
-    // Animate counter when section is visible
     const counterSection = document.getElementById("social-proof");
     if (counterSection) {
       const counterObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          // Animate counter
           let currentCount = 0;
           const interval = setInterval(() => {
             currentCount += 5;
@@ -153,6 +146,7 @@ const Index = () => {
       <Navbar />
 
       {/* Hero Section with Modern Design */}
+
       <section className="relative min-h-screen flex items-center bg-gradient-to-br from-blue-50 via-sky-50 to-white">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
@@ -175,16 +169,17 @@ const Index = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 rounded-full" asChild>
-                    <Link to="/onboarding">
-                      Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                    <Link to="/interactive-demo">
+                      See how it works <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
                   <Button
                     size="lg"
                     variant="outline"
                     className="text-lg px-8 rounded-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                    asChild
                   >
-                    View Demo
+                    <Link to="/templates">View Templates</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -232,7 +227,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -272,7 +266,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Grid Section */}
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -307,7 +300,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Social Proof Section */}
       <section id="social-proof" className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -356,7 +348,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Testimonials Carousel */}
           <div className="max-w-4xl mx-auto" style={{ opacity: 0 }} data-aos="fade-up">
             <Carousel
               opts={{
@@ -371,7 +362,7 @@ const Index = () => {
                     <Card className="border-none shadow-md bg-gradient-to-br from-white to-blue-50">
                       <CardContent className="p-8">
                         <div className="flex flex-col items-center text-center">
-                          <div className="text-blue-500 mb-6">
+                          <div className="mb-4">
                             <svg
                               width="40"
                               height="40"
@@ -420,7 +411,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section className="py-24 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -437,7 +427,6 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Starter Tier */}
             <div
               className="rounded-xl border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
               style={{ opacity: 0 }}
@@ -467,7 +456,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Pro Tier */}
             <div
               className="rounded-xl border-2 border-blue-500 bg-white shadow-lg relative transform hover:-translate-y-1 transition-all duration-300"
               style={{ opacity: 0, animationDelay: "200ms" }}
@@ -506,7 +494,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Enterprise Tier */}
             <div
               className="rounded-xl border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
               style={{ opacity: 0, animationDelay: "400ms" }}
@@ -545,7 +532,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Trust & Security Section */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -602,7 +588,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-blue-600 to-sky-500 text-white">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
@@ -613,31 +598,32 @@ const Index = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to create amazing events?</h2>
-              <p className="text-xl mb-8 text-blue-100">Get started in minutes. No credit card required.</p>
+              <p className="text-xl mb-8 text-blue-100">Experience our platform before signing up</p>
 
               <div className="flex flex-col md:flex-row gap-4 justify-center max-w-lg mx-auto">
-                <Link to="/onboarding" className="w-full md:w-auto">
+                <Link to="/interactive-demo" className="w-full md:w-auto">
                   <Button
                     size="lg"
                     className="w-full md:w-auto bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 rounded-full"
                   >
-                    Get Started Free
+                    Try Interactive Demo
                   </Button>
                 </Link>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full md:w-auto text-lg px-8 rounded-full border-white/30 text-white hover:bg-blue-700/30"
-                >
-                  Schedule Demo
-                </Button>
+                <Link to="/auth/signup" className="w-full md:w-auto">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full md:w-auto text-lg px-8 rounded-full border-white/30 text-white hover:bg-blue-700/30"
+                  >
+                    Sign Up Free
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-12 bg-gray-900 text-white">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

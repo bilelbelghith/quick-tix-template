@@ -11,52 +11,100 @@ export type Database = {
     Tables: {
       events: {
         Row: {
+          capacity: number
+          contact_email: string | null
           cover_image_url: string | null
           created_at: string | null
           date: string
+          description: string | null
+          event_time: string | null
           id: string
+          is_online: boolean | null
           location: string
           logo_url: string | null
+          metadata: Json | null
           name: string
           organizer_id: string
+          organizer_name: string | null
           primary_color: string | null
           published: boolean | null
           published_at: string | null
           slug: string
           template_id: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
+          capacity?: number
+          contact_email?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           date: string
+          description?: string | null
+          event_time?: string | null
           id?: string
+          is_online?: boolean | null
           location: string
           logo_url?: string | null
+          metadata?: Json | null
           name: string
           organizer_id: string
+          organizer_name?: string | null
           primary_color?: string | null
           published?: boolean | null
           published_at?: string | null
           slug: string
           template_id: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
+          capacity?: number
+          contact_email?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           date?: string
+          description?: string | null
+          event_time?: string | null
           id?: string
+          is_online?: boolean | null
           location?: string
           logo_url?: string | null
+          metadata?: Json | null
           name?: string
           organizer_id?: string
+          organizer_name?: string | null
           primary_color?: string | null
           published?: boolean | null
           published_at?: string | null
           slug?: string
           template_id?: string
-          updated_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string
         }
         Relationships: []
       }

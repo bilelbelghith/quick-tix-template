@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -361,7 +360,7 @@ const Dashboard = () => {
                                   e.stopPropagation();
                                   navigate(`/events/${event.id}/publish`);
                                 }}
-                                className="text-purple-600 hover:text-purple-700 border-purple-200 hover:border-purple-300"
+                                className="text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
                               >
                                 <Share2 className="h-4 w-4 mr-1" />
                                 Publish
@@ -369,14 +368,25 @@ const Dashboard = () => {
                             ) : (
                               <Button
                                 size="sm"
-                                className="bg-purple-600 hover:bg-purple-700"
+                                className="bg-blue-600 hover:bg-blue-700"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // Get username from user's email or use ID
-                                  supabase.auth.getUser().then(({ data }) => {
-                                    const username = data.user?.email?.split('@')[0] || data.user?.id;
-                                    navigate(`/${username}/${event.slug}`);
-                                  });
+                                  supabase
+                                    .from('profiles')
+                                    .select('username')
+                                    .eq('id', supabase.auth.getUser().then(data => data.data.user?.id))
+                                    .single()
+                                    .then(({ data: profileData, error }) => {
+                                      if (error || !profileData) {
+                                        console.error("Error fetching profile:", error);
+                                        supabase.auth.getUser().then(({ data }) => {
+                                          const username = data.user?.email?.split('@')[0] || data.user?.id;
+                                          navigate(`/${username}/${event.slug}`);
+                                        });
+                                      } else {
+                                        navigate(`/${profileData.username}/${event.slug}`);
+                                      }
+                                    });
                                 }}
                               >
                                 <Eye className="h-4 w-4 mr-1" />

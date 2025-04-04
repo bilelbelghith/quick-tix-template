@@ -18,12 +18,15 @@ export interface AuthSession {
 }
 
 export const signUp = async (email: string, password: string, fullName: string) => {
+  const username = email.split('@')[0]; // Default username from email
+  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
+        username: username,
       },
       emailRedirectTo: `${window.location.origin}/auth/callback`,
     },

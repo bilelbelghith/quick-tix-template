@@ -4,6 +4,8 @@ export interface TicketTier {
   price: number;
   description: string;
   quantity: number;
+  available?: number;
+  id?: string;
 }
 
 export interface EventData {
@@ -29,4 +31,14 @@ export interface EventData {
   topics?: string[];
   teams?: string[];
   sportsType?: string;
+  slug?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
 }
