@@ -20,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import UseCase from "./pages/UseCase";
 import PricingCalculator from "./pages/PricingCalculator";
 import Resources from "./pages/Resources";
+import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 
 // Auth component to check if user is logged in
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -46,17 +47,14 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/interactive-demo" element={<OnboardingFlow />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/auth/signup" element={<Auth />} />
       <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route 
         path="/onboarding" 
-        element={
-          <ProtectedRoute>
-            <Onboarding />
-          </ProtectedRoute>
-        } 
+        element={<Onboarding />} 
       />
       <Route 
         path="/:templateId/customize" 

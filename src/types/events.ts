@@ -4,6 +4,8 @@ export interface TicketTier {
   price: number;
   description: string;
   quantity: number;
+  available?: number;
+  id?: string;
 }
 
 export interface EventData {
