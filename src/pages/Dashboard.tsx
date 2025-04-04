@@ -69,7 +69,6 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Get current user
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
       
@@ -79,7 +78,6 @@ const Dashboard = () => {
         return;
       }
       
-      // Fetch events created by this organizer
       const { data: eventsData, error: eventsError } = await supabase
         .from('events')
         .select('*')
@@ -88,9 +86,7 @@ const Dashboard = () => {
       
       if (eventsError) throw eventsError;
       
-      // For each event, fetch ticket sales stats
       const eventPromises = eventsData.map(async (event) => {
-        // Fetch ticket sales for this event
         const { data: ticketsData, error: ticketsError } = await supabase
           .from('tickets')
           .select('ticket_tier_id, quantity')
@@ -104,7 +100,6 @@ const Dashboard = () => {
           };
         }
         
-        // Calculate total tickets sold
         const ticketsSold = ticketsData?.reduce((acc, ticket) => acc + ticket.quantity, 0) || 0;
         
         return {
@@ -116,15 +111,12 @@ const Dashboard = () => {
       const eventsWithStats = await Promise.all(eventPromises);
       setEvents(eventsWithStats);
       
-      // Calculate dashboard stats
       const totalEvents = eventsWithStats.length;
       const totalTicketsSold = eventsWithStats.reduce((acc, event) => acc + event.ticketsSold, 0);
       
-      // To calculate revenue, we need to fetch ticket tiers with prices
       let totalRevenue = 0;
       
       for (const event of eventsWithStats) {
-        // Get ticket tiers for this event
         const { data: tiersData, error: tiersError } = await supabase
           .from('ticket_tiers')
           .select('id, price')
@@ -135,7 +127,6 @@ const Dashboard = () => {
           continue;
         }
         
-        // Get tickets sold for this event
         const { data: ticketsData, error: ticketsError } = await supabase
           .from('tickets')
           .select('ticket_tier_id, quantity')
@@ -146,7 +137,6 @@ const Dashboard = () => {
           continue;
         }
         
-        // Calculate revenue for this event
         for (const ticket of ticketsData || []) {
           const tier = tiersData?.find(t => t.id === ticket.ticket_tier_id);
           if (tier) {
@@ -189,7 +179,6 @@ const Dashboard = () => {
       <div className="container max-w-7xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold mb-8">Organizer Dashboard</h1>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <motion.div
             whileHover={{ y: -5 }}
@@ -249,14 +238,14 @@ const Dashboard = () => {
           </motion.div>
         </div>
 
-        {/* Tabs */}
         <Tabs defaultValue="events" className="mb-8" value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="events">Your Events</TabsTrigger>
             <TabsTrigger value="analytics" disabled={!selectedEvent}>Analytics</TabsTrigger>
             <TabsTrigger value="validation" disabled={!selectedEvent}>Validation</TabsTrigger>
           </TabsList>
-        {/* Events Tab */}
+        </Tabs>
+
         <TabsContent value="events">
           <Card className="shadow-md">
             <CardHeader className="bg-white">
@@ -367,24 +356,34 @@ const Dashboard = () => {
                               <Button
                                 size="sm"
                                 className="bg-blue-600 hover:bg-blue-700"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  supabase
-                                    .from('profiles')
-                                    .select('username')
-                                    .eq('id', supabase.auth.getUser().then(data => data.data.user?.id))
-                                    .single()
-                                    .then(({ data: profileData, error }) => {
-                                      if (error || !profileData) {
-                                        console.error("Error fetching profile:", error);
-                                        supabase.auth.getUser().then(({ data }) => {
-                                          const username = data.user?.email?.split('@')[0] || data.user?.id;
-                                          navigate(`/${username}/${event.slug}`);
-                                        });
-                                      } else {
-                                        navigate(`/${profileData.username}/${event.slug}`);
-                                      }
-                                    });
+                                  try {
+                                    const { data: userData, error: userError } = await supabase.auth.getUser();
+                                    if (userError) throw userError;
+                                    
+                                    const userId = userData.user?.id;
+                                    if (!userId) {
+                                      console.error("No user ID found");
+                                      return;
+                                    }
+                                    
+                                    const { data: profileData, error } = await supabase
+                                      .from('profiles')
+                                      .select('username')
+                                      .eq('id', userId)
+                                      .single();
+                                    
+                                    if (error || !profileData) {
+                                      console.error("Error fetching profile:", error);
+                                      const username = userData.user?.email?.split('@')[0] || userId;
+                                      navigate(`/${username}/${event.slug}`);
+                                    } else {
+                                      navigate(`/${profileData.username}/${event.slug}`);
+                                    }
+                                  } catch (err) {
+                                    console.error("Navigation error:", err);
+                                  }
                                 }}
                               >
                                 <Eye className="h-4 w-4 mr-1" />
@@ -402,7 +401,6 @@ const Dashboard = () => {
           </Card>
         </TabsContent>
 
-        {/* Analytics Tab */}
         <TabsContent value="analytics">
           {selectedEvent ? (
             <EventAnalytics eventId={selectedEvent} />
@@ -413,7 +411,6 @@ const Dashboard = () => {
           )}
         </TabsContent>
 
-        {/* Validation Tab */}
         <TabsContent value="validation">
           {selectedEvent ? (
             <TestSuite eventId={selectedEvent} />
@@ -423,10 +420,8 @@ const Dashboard = () => {
             </div>
           )}
         </TabsContent>
-        </Tabs>
       </div>
 
-      {/* QR Scanner Modal */}
       {showQRScanner && selectedEvent && (
         <QRScanner 
           open={showQRScanner}

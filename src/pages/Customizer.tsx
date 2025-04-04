@@ -147,11 +147,11 @@ const Customizer = () => {
       
       if (data.ticketTiers && data.ticketTiers.length > 0) {
         const ticketTiersData = data.ticketTiers.map(tier => ({
-          name: tier.name || '',
+          name: tier.name || 'General Admission',
           price: tier.price || 0,
           description: tier.description || '',
           quantity: tier.quantity || 0
-        } as TicketTier));
+        }));
         
         const { error: tiersError } = await supabase
           .from('ticket_tiers')
