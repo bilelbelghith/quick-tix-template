@@ -15,16 +15,25 @@ interface Event {
   name: string;
   date: string;
   location: string;
+  description: string | null;
   cover_image_url: string | null;
   logo_url: string | null;
   primary_color: string;
   organizer_id: string;
+  organizer_name: string | null;
   slug: string;
+}
+
+interface Profile {
+  id: string;
+  username: string;
+  full_name: string | null;
 }
 
 const EventPage: React.FC = () => {
   const { username, eventSlug } = useParams<{ username: string; eventSlug: string }>();
   const [event, setEvent] = useState<Event | null>(null);
+  const [organizer, setOrganizer] = useState<Profile | null>(null);
   const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -33,16 +42,24 @@ const EventPage: React.FC = () => {
   useEffect(() => {
     const fetchEventData = async () => {
       try {
+        if (!username || !eventSlug) {
+          throw new Error("Missing username or event slug");
+        }
+        
         // First, find the organizer's ID from their username
         const { data: organizerData, error: organizerError } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, username, full_name')
           .eq('username', username)
           .single();
 
-        if (organizerError) throw organizerError;
+        if (organizerError) {
+          console.error("Organizer fetch error:", organizerError);
+          throw new Error("Unable to find organizer");
+        }
         
-        const organizerId = organizerData?.id;
+        setOrganizer(organizerData);
+        const organizerId = organizerData.id;
         
         // Fetch the event using organizer ID and event slug
         const { data: eventData, error: eventError } = await supabase
@@ -50,9 +67,13 @@ const EventPage: React.FC = () => {
           .select('*')
           .eq('slug', eventSlug)
           .eq('organizer_id', organizerId)
+          .eq('published', true)
           .single();
 
-        if (eventError) throw eventError;
+        if (eventError) {
+          console.error("Event fetch error:", eventError);
+          throw new Error("Event not found or not published");
+        }
         
         setEvent(eventData);
         
@@ -97,7 +118,7 @@ const EventPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4">Loading event...</p>
         </div>
       </div>
@@ -182,7 +203,9 @@ const EventPage: React.FC = () => {
               <span>{event.location}</span>
             </div>
             <div className="flex items-center">
-              <span className="text-sm opacity-70">Organized by {username}</span>
+              <span className="text-sm opacity-70">
+                Organized by {organizer?.full_name || organizer?.username || username}
+              </span>
             </div>
           </div>
         </div>
@@ -210,8 +233,7 @@ const EventPage: React.FC = () => {
           <h2 className="text-xl font-bold mb-4">About This Event</h2>
           <div className="prose max-w-none">
             <p className="text-muted-foreground">
-              Join us for an amazing event! More details about the event would appear here.
-              In a real implementation, this would be fetched from the database.
+              {event.description || "Join us for an amazing event! More details coming soon."}
             </p>
           </div>
         </section>

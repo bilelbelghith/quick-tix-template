@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -158,9 +157,23 @@ const PublishEvent = () => {
       
       if (updateError) throw updateError;
       
-      // Get the username for the URL
+      // Get the user's profile for the URL
       const { data: userData } = await supabase.auth.getUser();
-      const username = userData.user?.email?.split('@')[0] || userData.user?.id;
+      if (!userData.user) throw new Error("User not authenticated");
+      
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', userData.user.id)
+        .single();
+        
+      let username;
+      if (profileError || !profileData) {
+        console.error("Couldn't fetch profile, using fallback username", profileError);
+        username = userData.user.email?.split('@')[0] || userData.user.id;
+      } else {
+        username = profileData.username;
+      }
       
       // Construct the shareable URL
       const shareableUrl = `${window.location.origin}/${username}/${eventSlug}`;
