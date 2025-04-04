@@ -256,8 +256,6 @@ const Dashboard = () => {
             <TabsTrigger value="analytics" disabled={!selectedEvent}>Analytics</TabsTrigger>
             <TabsTrigger value="validation" disabled={!selectedEvent}>Validation</TabsTrigger>
           </TabsList>
-        </Tabs>
-
         {/* Events Tab */}
         <TabsContent value="events">
           <Card className="shadow-md">
@@ -425,6 +423,7 @@ const Dashboard = () => {
             </div>
           )}
         </TabsContent>
+        </Tabs>
       </div>
 
       {/* QR Scanner Modal */}
