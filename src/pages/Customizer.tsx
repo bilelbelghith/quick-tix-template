@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -147,10 +148,10 @@ const Customizer = () => {
       
       if (data.ticketTiers && data.ticketTiers.length > 0) {
         const ticketTiersData = data.ticketTiers.map(tier => ({
-          name: tier.name || 'General Admission',
-          price: tier.price || 0,
-          description: tier.description || '',
-          quantity: tier.quantity || 0
+          name: tier.name,
+          price: tier.price,
+          description: tier.description,
+          quantity: tier.quantity
         }));
         
         const { error: tiersError } = await supabase
