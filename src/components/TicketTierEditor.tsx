@@ -31,8 +31,13 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
 
   const updateTier = (index: number, field: keyof TicketTier, value: string | number) => {
     const newTiers = [...ticketTiers];
+    
+    // Create a new tier object with required values
     newTiers[index] = {
-      ...newTiers[index],
+      name: newTiers[index].name,
+      price: newTiers[index].price,
+      description: newTiers[index].description,
+      quantity: newTiers[index].quantity,
       [field]: field === 'price' || field === 'quantity' 
         ? parseFloat(value as string) || 0 
         : value,
@@ -62,7 +67,7 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
       </div>
 
       {ticketTiers.map((tier, index) => (
-        <Card key={index} className="relative">
+        <Card key={index} className="relative hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
             <div className="absolute top-2 right-2">
               <Button 

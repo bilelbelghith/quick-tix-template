@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutTemplate,
   Palette,
@@ -19,10 +19,12 @@ import {
   Zap,
   Mouse,
   ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
+import LiveBrandingSection from "@/components/LiveBrandingSection";
 
 const testimonials = [
   {
@@ -100,6 +102,12 @@ const Index = () => {
   const featureInterval = useRef<NodeJS.Timeout | null>(null);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/templates');
+  };
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -379,6 +387,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <LiveBrandingSection onGetStarted={handleGetStarted} />
 
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-6">

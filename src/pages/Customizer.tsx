@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -63,6 +62,39 @@ const Customizer = () => {
       console.error('Image upload error:', error);
       throw new Error('Failed to upload image');
     }
+  };
+
+  const handleTicketTiersChange = (tiers: TicketTier[]) => {
+    const validTiers = tiers.map(tier => ({
+      name: tier.name || 'Ticket',
+      price: typeof tier.price === 'number' ? tier.price : 0,
+      description: tier.description || '',
+      quantity: typeof tier.quantity === 'number' ? tier.quantity : 0
+    }));
+
+    setTicketTiers(validTiers);
+  };
+
+  const loadTicketTiersData = (data: any) => {
+    if (data.ticketTiers && data.ticketTiers.length > 0) {
+      const ticketTiersData = data.ticketTiers.map((tier: any) => ({
+        name: tier.name || 'General Admission',
+        price: typeof tier.price === 'number' ? tier.price : 0,
+        description: tier.description || '',
+        quantity: typeof tier.quantity === 'number' ? tier.quantity : 0
+      }));
+      
+      setTicketTiers(ticketTiersData);
+    }
+  };
+
+  const handleAddInitialTier = () => {
+    setTicketTiers([{
+      name: 'General Admission',
+      price: 29.99,
+      description: 'Standard entry ticket',
+      quantity: 100
+    }]);
   };
 
   const onSubmit = async (data: EventFormValues) => {
@@ -778,7 +810,7 @@ const Customizer = () => {
                         <FormControl>
                           <TicketTierEditor 
                             ticketTiers={field.value} 
-                            onChange={field.onChange} 
+                            onChange={handleTicketTiersChange} 
                           />
                         </FormControl>
                         <FormMessage />
