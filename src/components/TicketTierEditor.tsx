@@ -37,6 +37,12 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
         ? parseFloat(value as string) || 0 
         : value,
     };
+    
+    // Ensure name is never empty
+    if (field === 'name' && !value) {
+      newTiers[index].name = `Ticket Tier ${index + 1}`;
+    }
+    
     onChange(newTiers);
   };
 
@@ -113,7 +119,7 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
               <div className="col-span-2">
                 <label className="text-sm font-medium">Description</label>
                 <Textarea
-                  value={tier.description || ""}
+                  value={tier.description}
                   onChange={(e) => updateTier(index, 'description', e.target.value)}
                   placeholder="Describe what's included with this ticket tier"
                   rows={2}
