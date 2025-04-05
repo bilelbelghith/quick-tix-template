@@ -255,63 +255,6 @@ const LiveBrandingSection: React.FC<LiveBrandingSectionProps> = ({ onGetStarted 
             </motion.div>
           </div>
         </div>
-
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3">
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mx-auto"
-            >
-              {isExpanded ? 'Show less' : 'Show more features'} 
-              {isExpanded ? (
-                <ChevronUp className="h-5 w-5" />
-              ) : (
-                <ChevronDown className="h-5 w-5" />
-              )}
-            </button>
-            
-            {isExpanded && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6"
-              >
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                  <h3 className="font-semibold mb-2">Custom Email Confirmations</h3>
-                  <p className="text-gray-600 text-sm">Personalize your ticket confirmation emails with your brand colors and logo.</p>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                  <h3 className="font-semibold mb-2">Attendee Management</h3>
-                  <p className="text-gray-600 text-sm">View and manage your attendee list with our simple dashboard.</p>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                  <h3 className="font-semibold mb-2">Quick Payouts</h3>
-                  <p className="text-gray-600 text-sm">Get paid quickly with our Stripe integration and fast payouts.</p>
-                </div>
-              </motion.div>
-            )}
-          </div>
-          
-          <div className="lg:col-span-1">
-            {showFeedback ? (
-              <OrganizerFeedback onSubmit={handleFeedbackSubmit} />
-            ) : (
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="text-xl font-semibold mb-2">Your Opinion Matters</h3>
-                <p className="text-muted-foreground mb-4">
-                  We'd love to hear about your experience with our platform.
-                </p>
-                <Button 
-                  onClick={() => setShowFeedback(true)}
-                  variant="outline" 
-                  className="w-full"
-                >
-                  Share Feedback
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </section>
   );
