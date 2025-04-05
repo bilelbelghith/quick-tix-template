@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Ticket } from 'lucide-react';
+import { Calendar, MapPin, Ticket, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ShareButtons from '@/components/ShareButtons';
 import TicketTierTable, { TicketTier } from '@/components/TicketTierTable';
+import OrganizerFeedback from '@/components/OrganizerFeedback';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
 
 interface Event {
   id: string;
@@ -36,6 +38,7 @@ const EventPage: React.FC = () => {
   const [organizer, setOrganizer] = useState<Profile | null>(null);
   const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showFeedback, setShowFeedback] = useState(false);
   const { toast } = useToast();
 
   // Fetch event data from Supabase
@@ -229,13 +232,42 @@ const EventPage: React.FC = () => {
         </section>
         
         {/* Event Description Section */}
-        <section className="my-12 pb-12">
+        <section className="my-12">
           <h2 className="text-xl font-bold mb-4">About This Event</h2>
           <div className="prose max-w-none">
             <p className="text-muted-foreground">
               {event.description || "Join us for an amazing event! More details coming soon."}
             </p>
           </div>
+        </section>
+        
+        {/* Feedback Section */}
+        <section className="my-12 pb-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold flex items-center">
+              <MessageSquare className="mr-2 h-5 w-5" />
+              Feedback
+            </h2>
+            {!showFeedback && (
+              <Button 
+                variant="outline" 
+                onClick={() => setShowFeedback(true)}
+                className="text-sm"
+              >
+                Share Your Experience
+              </Button>
+            )}
+          </div>
+          
+          {showFeedback ? (
+            <OrganizerFeedback />
+          ) : (
+            <div className="bg-muted/30 rounded-lg p-6 text-center">
+              <p className="text-muted-foreground">
+                Have you attended this event? Share your experience to help others.
+              </p>
+            </div>
+          )}
         </section>
       </div>
     </div>

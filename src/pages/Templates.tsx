@@ -1,39 +1,55 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Music, BookOpen, Trophy, Calendar } from 'lucide-react';
+import { ArrowRight, Music, BookOpen, Trophy, Calendar, Star, Users, Clock, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Separator } from '@/components/ui/separator';
 
 const templateCategories = [
   {
-    title: "Standard Events",
-    description: "Simple, versatile template for any type of event",
-    icon: <Calendar className="h-8 w-8 text-blue-500" />,
-    link: "/use-cases/standard",
-    features: ["Event details", "Ticket options", "Customizable layout"]
-  },
-  {
-    title: "Music Events",
+    id: "concert",
+    title: "Concert Events",
     description: "Perfect for concerts, festivals, and live performances",
-    icon: <Music className="h-8 w-8 text-blue-500" />,
+    icon: <Music className="h-10 w-10 text-white" />,
+    color: "bg-purple-600",
     link: "/use-cases/music",
-    features: ["Seating charts", "Artist profiles", "Performance schedules"]
+    features: [
+      { icon: <Users className="h-4 w-4" />, text: "Fan engagement features" },
+      { icon: <Music className="h-4 w-4" />, text: "Artist profile sections" },
+      { icon: <Clock className="h-4 w-4" />, text: "Set times and schedules" }
+    ],
+    example: "Perfect for music festivals, band performances, DJ sets, and more"
   },
   {
-    title: "Workshops & Conferences",
+    id: "workshop",
+    title: "Workshops & Classes",
     description: "Ideal for educational events and professional gatherings",
-    icon: <BookOpen className="h-8 w-8 text-blue-500" />,
+    icon: <BookOpen className="h-10 w-10 text-white" />,
+    color: "bg-green-600",
     link: "/use-cases/workshops",
-    features: ["Agenda planning", "Speaker bios", "Session registration"]
+    features: [
+      { icon: <Users className="h-4 w-4" />, text: "Instructor details" },
+      { icon: <Star className="h-4 w-4" />, text: "Skill level indicators" },
+      { icon: <Clock className="h-4 w-4" />, text: "Materials & prerequisites" }
+    ],
+    example: "Great for cooking classes, tech workshops, fitness training, and seminars"
   },
   {
+    id: "sports",
     title: "Sports Events",
     description: "Great for games, tournaments, and athletic competitions",
-    icon: <Trophy className="h-8 w-8 text-blue-500" />,
+    icon: <Trophy className="h-10 w-10 text-white" />,
+    color: "bg-orange-600",
     link: "/use-cases/sports",
-    features: ["Team matchups", "Venue maps", "Competition brackets"]
+    features: [
+      { icon: <Users className="h-4 w-4" />, text: "Team & player info" },
+      { icon: <MapPin className="h-4 w-4" />, text: "Venue & seating maps" },
+      { icon: <Trophy className="h-4 w-4" />, text: "Tournament brackets" }
+    ],
+    example: "Ideal for basketball games, golf tournaments, running races, and more"
   }
 ];
 
@@ -71,7 +87,7 @@ const Templates: React.FC = () => {
             Event Templates
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose a template that fits your event type and customize it to create a unique experience for your attendees.
+            Choose a specialized template designed specifically for your event type
           </p>
         </motion.div>
 
@@ -79,29 +95,51 @@ const Templates: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           {templateCategories.map((category, index) => (
             <motion.div key={index} variants={itemVariants} className="h-full">
-              <Card className="h-full hover:shadow-lg transition-shadow duration-300 hover:border-blue-300">
+              <Card className="h-full hover:shadow-lg transition-shadow duration-300 hover:border-blue-300 overflow-hidden">
+                <div className={`${category.color} p-6 flex justify-center items-center`}>
+                  <div className="bg-white/20 p-4 rounded-full">
+                    {category.icon}
+                  </div>
+                </div>
                 <CardHeader>
-                  <div className="mb-4">{category.icon}</div>
                   <CardTitle className="text-2xl">{category.title}</CardTitle>
                   <CardDescription>{category.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    {category.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-600"></div>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-4">
+                    <ul className="space-y-3">
+                      {category.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-3">
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                            category.id === 'concert' ? 'bg-purple-100 text-purple-600' :
+                            category.id === 'workshop' ? 'bg-green-100 text-green-600' :
+                            'bg-orange-100 text-orange-600'
+                          }`}>
+                            {feature.icon}
+                          </div>
+                          <span>{feature.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    <Separator />
+                    
+                    <div className="text-sm text-muted-foreground">
+                      <p>{category.example}</p>
+                    </div>
+                  </div>
                 </CardContent>
                 <CardFooter>
                   <Link to={category.link} className="w-full">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Button className={`w-full text-white ${
+                      category.id === 'concert' ? 'bg-purple-600 hover:bg-purple-700' :
+                      category.id === 'workshop' ? 'bg-green-600 hover:bg-green-700' :
+                      'bg-orange-600 hover:bg-orange-700'
+                    }`}>
                       View Template <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>

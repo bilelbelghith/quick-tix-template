@@ -32,12 +32,9 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
   const updateTier = (index: number, field: keyof TicketTier, value: string | number) => {
     const newTiers = [...ticketTiers];
     
-    // Create a new tier object with required values
+    // Create a new tier object with all required properties
     newTiers[index] = {
-      name: newTiers[index].name,
-      price: newTiers[index].price,
-      description: newTiers[index].description,
-      quantity: newTiers[index].quantity,
+      ...newTiers[index],
       [field]: field === 'price' || field === 'quantity' 
         ? parseFloat(value as string) || 0 
         : value,
@@ -46,6 +43,11 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
     // Ensure name is never empty
     if (field === 'name' && !value) {
       newTiers[index].name = `Ticket Tier ${index + 1}`;
+    }
+    
+    // Ensure description is always a string
+    if (field === 'description' && typeof newTiers[index].description !== 'string') {
+      newTiers[index].description = "";
     }
     
     onChange(newTiers);

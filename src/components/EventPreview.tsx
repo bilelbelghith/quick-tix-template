@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Ticket, Music, Users, Award, Clock, GraduationCap, Layers, Trophy, Flag, User, Dumbbell } from 'lucide-react';
+import { Calendar, MapPin, Ticket, Music, Users, Award, Clock, GraduationCap, Layers, Trophy, Flag, User, Dumbbell, Mic, Star, Headphones, Heart } from 'lucide-react';
 import { EventFormValues } from '@/lib/schemas/event-schema';
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
@@ -16,28 +16,67 @@ interface EventPreviewProps {
 const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
   const formattedDate = event.date ? format(new Date(event.date), 'EEEE, MMMM d, yyyy') : '';
   
-  // Template-specific icon and color scheme
-  const getTemplateIcon = () => {
+  // Template-specific styling and components
+  const getTemplateStyles = () => {
     switch (templateId) {
       case 'concert':
-        return <Music className="h-5 w-5" />;
+        return {
+          mainColor: 'bg-purple-600',
+          buttonColor: 'bg-purple-600 hover:bg-purple-700',
+          headerClass: 'bg-gradient-to-r from-purple-700 to-purple-500',
+          icon: <Music className="h-5 w-5" />,
+          ticketLabel: 'Get Tickets',
+          featureIcons: {
+            artist: <Mic className="mr-2 h-4 w-4 text-purple-500" />,
+            fans: <Heart className="mr-2 h-4 w-4 text-purple-500" />,
+            genre: <Headphones className="mr-2 h-4 w-4 text-purple-500" />
+          }
+        };
       case 'workshop':
-        return <GraduationCap className="h-5 w-5" />;
+        return {
+          mainColor: 'bg-green-600',
+          buttonColor: 'bg-green-600 hover:bg-green-700',
+          headerClass: 'bg-gradient-to-r from-green-700 to-green-500',
+          icon: <GraduationCap className="h-5 w-5" />,
+          ticketLabel: 'Register Now',
+          featureIcons: {
+            instructor: <User className="mr-2 h-4 w-4 text-green-500" />,
+            skill: <Award className="mr-2 h-4 w-4 text-green-500" />,
+            materials: <Layers className="mr-2 h-4 w-4 text-green-500" />
+          }
+        };
       case 'sports':
-        return <Trophy className="h-5 w-5" />;
+        return {
+          mainColor: 'bg-orange-600',
+          buttonColor: 'bg-orange-600 hover:bg-orange-700',
+          headerClass: 'bg-gradient-to-r from-orange-700 to-orange-500',
+          icon: <Trophy className="h-5 w-5" />,
+          ticketLabel: 'Buy Tickets',
+          featureIcons: {
+            teams: <Users className="mr-2 h-4 w-4 text-orange-500" />,
+            sport: <Dumbbell className="mr-2 h-4 w-4 text-orange-500" />,
+            level: <Flag className="mr-2 h-4 w-4 text-orange-500" />
+          }
+        };
       default:
-        return <Calendar className="h-5 w-5" />;
+        return {
+          mainColor: `bg-[${event.primaryColor || '#6D28D9'}]`,
+          buttonColor: `bg-[${event.primaryColor || '#6D28D9'}] hover:bg-opacity-90`,
+          headerClass: '',
+          icon: <Calendar className="h-5 w-5" />,
+          ticketLabel: 'Get Tickets',
+          featureIcons: {}
+        };
     }
   };
   
+  const styles = getTemplateStyles();
+  
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden">
       {/* Cover Image with template-specific styling */}
       <div 
-        className="w-full h-64 bg-muted relative"
-        style={{
-          backgroundColor: event.primaryColor || '#6D28D9',
-        }}
+        className={`w-full h-64 relative ${styles.headerClass || `bg-[${event.primaryColor || '#6D28D9'}]`}`}
       >
         {event.coverImage ? (
           <img 
@@ -50,13 +89,14 @@ const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
             {templateId === 'concert' && 'Concert Cover Image'}
             {templateId === 'workshop' && 'Workshop Cover Image'}
             {templateId === 'sports' && 'Sports Event Cover Image'}
+            {!['concert', 'workshop', 'sports'].includes(templateId) && 'Event Cover Image'}
           </div>
         )}
         
         {/* Badge showing template type */}
         <div className="absolute top-4 right-4">
           <Badge className="bg-background/80 text-foreground backdrop-blur-sm">
-            {getTemplateIcon()}
+            {styles.icon}
             <span className="ml-1 capitalize">{templateId}</span>
           </Badge>
         </div>
@@ -101,36 +141,36 @@ const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
         
         {/* Template-specific section */}
         {templateId === 'concert' && (
-          <div className="mb-8 bg-muted/20 rounded-lg p-4 border">
-            <h2 className="font-semibold flex items-center mb-4">
-              <Music className="mr-2 h-5 w-5" />
+          <div className="mb-8 bg-purple-50 rounded-lg p-4 border border-purple-100">
+            <h2 className="font-semibold flex items-center mb-4 text-purple-800">
+              <Music className="mr-2 h-5 w-5 text-purple-600" />
               Concert Details
             </h2>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(event as any).artistName && (
                 <div className="flex items-center">
-                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.artist}
                   <span className="font-medium mr-2">Artist:</span>
                   <span>{(event as any).artistName}</span>
                 </div>
               )}
               {(event as any).genre && (
                 <div className="flex items-center">
-                  <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.genre}
                   <span className="font-medium mr-2">Genre:</span>
                   <span>{(event as any).genre}</span>
                 </div>
               )}
               {(event as any).openingAct && (
                 <div className="flex items-center">
-                  <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.fans}
                   <span className="font-medium mr-2">Opening Act:</span>
                   <span>{(event as any).openingAct}</span>
                 </div>
               )}
               {(event as any).duration && (
                 <div className="flex items-center">
-                  <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <Clock className="mr-2 h-4 w-4 text-purple-500" />
                   <span className="font-medium mr-2">Duration:</span>
                   <span>{(event as any).duration}</span>
                 </div>
@@ -140,36 +180,36 @@ const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
         )}
         
         {templateId === 'workshop' && (
-          <div className="mb-8 bg-muted/20 rounded-lg p-4 border">
-            <h2 className="font-semibold flex items-center mb-4">
-              <GraduationCap className="mr-2 h-5 w-5" />
+          <div className="mb-8 bg-green-50 rounded-lg p-4 border border-green-100">
+            <h2 className="font-semibold flex items-center mb-4 text-green-800">
+              <GraduationCap className="mr-2 h-5 w-5 text-green-600" />
               Workshop Details
             </h2>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(event as any).instructorName && (
                 <div className="flex items-center">
-                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.instructor}
                   <span className="font-medium mr-2">Instructor:</span>
                   <span>{(event as any).instructorName}</span>
                 </div>
               )}
               {(event as any).skillLevel && (
                 <div className="flex items-center">
-                  <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.skill}
                   <span className="font-medium mr-2">Skill Level:</span>
                   <span>{(event as any).skillLevel}</span>
                 </div>
               )}
               {(event as any).prerequisites && (
                 <div className="flex items-center">
-                  <Award className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <Award className="mr-2 h-4 w-4 text-green-500" />
                   <span className="font-medium mr-2">Prerequisites:</span>
                   <span>{(event as any).prerequisites}</span>
                 </div>
               )}
               {(event as any).materials && (
                 <div className="flex items-center">
-                  <Layers className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.materials}
                   <span className="font-medium mr-2">Materials:</span>
                   <span>{(event as any).materials}</span>
                 </div>
@@ -179,36 +219,36 @@ const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
         )}
         
         {templateId === 'sports' && (
-          <div className="mb-8 bg-muted/20 rounded-lg p-4 border">
-            <h2 className="font-semibold flex items-center mb-4">
-              <Trophy className="mr-2 h-5 w-5" />
+          <div className="mb-8 bg-orange-50 rounded-lg p-4 border border-orange-100">
+            <h2 className="font-semibold flex items-center mb-4 text-orange-800">
+              <Trophy className="mr-2 h-5 w-5 text-orange-600" />
               Event Details
             </h2>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(event as any).teamNames && (
                 <div className="flex items-center">
-                  <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.teams}
                   <span className="font-medium mr-2">Teams:</span>
                   <span>{(event as any).teamNames}</span>
                 </div>
               )}
               {(event as any).sportType && (
                 <div className="flex items-center">
-                  <Dumbbell className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.sport}
                   <span className="font-medium mr-2">Sport:</span>
                   <span>{(event as any).sportType}</span>
                 </div>
               )}
               {(event as any).competitionLevel && (
                 <div className="flex items-center">
-                  <Flag className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {styles.featureIcons.level}
                   <span className="font-medium mr-2">Level:</span>
                   <span>{(event as any).competitionLevel}</span>
                 </div>
               )}
               {(event as any).rules && (
                 <div className="flex items-center">
-                  <Award className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <Award className="mr-2 h-4 w-4 text-orange-500" />
                   <span className="font-medium mr-2">Rules:</span>
                   <span>{(event as any).rules}</span>
                 </div>
@@ -228,7 +268,7 @@ const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
           
           <div className="space-y-4">
             {event.ticketTiers?.map((tier, index) => (
-              <div key={index} className="border rounded-lg p-4">
+              <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">{tier.name}</h3>
                   <span className="font-bold text-lg">${tier.price}</span>
@@ -242,9 +282,9 @@ const EventPreview: React.FC<EventPreviewProps> = ({ event, templateId }) => {
                   </span>
                   <Button 
                     size="sm"
-                    style={{ backgroundColor: event.primaryColor }}
+                    className={styles.buttonColor}
                   >
-                    Buy Ticket
+                    {styles.ticketLabel}
                   </Button>
                 </div>
               </div>
