@@ -9,9 +9,14 @@ import { useToast } from '@/hooks/use-toast';
 interface OrganizerFeedbackProps {
   onSubmit?: (rating: number, comment: string) => void;
   context?: 'publishing' | 'sales' | 'general';
+  primaryColor?: string;
 }
 
-const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ onSubmit, context = 'general' }) => {
+const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ 
+  onSubmit, 
+  context = 'general',
+  primaryColor = '#6D28D9'
+}) => {
   const [rating, setRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
@@ -129,7 +134,8 @@ const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ onSubmit, context
 
         <Button 
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 w-full"
+          className="w-full"
+          style={{ backgroundColor: primaryColor }}
         >
           Submit Feedback
           <Send className="ml-2 h-4 w-4" />

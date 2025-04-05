@@ -23,14 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase, generateUniqueSlug } from '@/lib/supabase';
-import { TicketTier } from '@/types/events';
-
-interface TicketTier {
-  name: string;
-  price: number;
-  description: string;
-  quantity: number;
-}
+import { TicketTier } from '@/types/ticketTier';
 
 const Customizer = () => {
   const { templateId } = useParams();
@@ -73,31 +66,28 @@ const Customizer = () => {
 
   const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([
     { 
+      id: "default-tier",
       name: "General Admission", 
       price: 25, 
       description: "Standard entry to the event", 
-      quantity: 100 
+      quantity: 100,
+      available: 100
     }
   ]);
 
   const handleTicketTiersChange = (tiers: TicketTier[]) => {
-    const validTiers = tiers.map(tier => ({
-      name: tier.name || 'Ticket',
-      price: typeof tier.price === 'number' ? tier.price : 0,
-      description: tier.description || '',
-      quantity: typeof tier.quantity === 'number' ? tier.quantity : 0
-    }));
-
-    setTicketTiers(validTiers);
+    setTicketTiers(tiers);
   };
 
   const loadTicketTiersData = (data: any) => {
     if (data.ticketTiers && data.ticketTiers.length > 0) {
       const ticketTiersData = data.ticketTiers.map((tier: any) => ({
+        id: tier.id || `tier-${Math.random().toString(36).substring(2, 15)}`,
         name: tier.name || 'General Admission',
         price: typeof tier.price === 'number' ? tier.price : 0,
         description: tier.description || '',
-        quantity: typeof tier.quantity === 'number' ? tier.quantity : 0
+        quantity: typeof tier.quantity === 'number' ? tier.quantity : 0,
+        available: typeof tier.quantity === 'number' ? tier.quantity : 0
       }));
       
       setTicketTiers(ticketTiersData);
@@ -108,10 +98,12 @@ const Customizer = () => {
     setTicketTiers([
       ...ticketTiers, 
       { 
+        id: `tier-${Math.random().toString(36).substring(2, 15)}`,
         name: "New Ticket", 
         price: 0, 
         description: "Ticket description", 
-        quantity: 50 
+        quantity: 50,
+        available: 50
       }
     ]);
   };
@@ -128,10 +120,12 @@ const Customizer = () => {
 
   const handleAddInitialTier = () => {
     setTicketTiers([{
+      id: `tier-${Math.random().toString(36).substring(2, 15)}`,
       name: 'General Admission',
       price: 29.99,
       description: 'Standard entry ticket',
-      quantity: 100
+      quantity: 100,
+      available: 100
     }]);
   };
 

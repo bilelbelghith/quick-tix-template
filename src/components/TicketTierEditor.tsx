@@ -1,56 +1,34 @@
-
 import React from 'react';
 import { Plus, Trash2, DollarSign, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { TicketTier } from '@/types/events';
+import { TicketTier } from '@/types/ticketTier';
 
 interface TicketTierEditorProps {
   ticketTiers: TicketTier[];
-  onChange: (tiers: TicketTier[]) => void;
+  onAddTier: () => void;
+  onUpdateTier: (index: number, tier: TicketTier) => void;
+  onRemoveTier: (index: number) => void;
 }
 
-const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
-  const handleAddTier = () => {
-    const newTier: TicketTier = {
-      name: `Ticket Tier ${ticketTiers.length + 1}`,
-      price: 0,
-      description: "",
-      quantity: 50
-    };
-    onChange([...ticketTiers, newTier]);
-  };
-
-  const handleRemoveTier = (index: number) => {
-    const newTiers = [...ticketTiers];
-    newTiers.splice(index, 1);
-    onChange(newTiers);
-  };
-
+const TicketTierEditor = ({ ticketTiers, onAddTier, onUpdateTier, onRemoveTier }: TicketTierEditorProps) => {
   const updateTier = (index: number, field: keyof TicketTier, value: string | number) => {
-    const newTiers = [...ticketTiers];
+    const newTier = { ...ticketTiers[index] };
     
-    // Create a new tier object with all required properties
-    newTiers[index] = {
-      ...newTiers[index],
-      [field]: field === 'price' || field === 'quantity' 
-        ? parseFloat(value as string) || 0 
-        : value,
-    };
-    
-    // Ensure name is never empty
-    if (field === 'name' && !value) {
-      newTiers[index].name = `Ticket Tier ${index + 1}`;
+    if (field === 'price' || field === 'quantity' || field === 'available') {
+      newTier[field] = typeof value === 'string' ? parseFloat(value) || 0 : value;
+      
+      // Keep available in sync with quantity when changing quantity
+      if (field === 'quantity') {
+        newTier.available = newTier.quantity;
+      }
+    } else if (field === 'name' || field === 'description') {
+      newTier[field] = value as string;
     }
     
-    // Ensure description is always a string
-    if (field === 'description' && typeof newTiers[index].description !== 'string') {
-      newTiers[index].description = "";
-    }
-    
-    onChange(newTiers);
+    onUpdateTier(index, newTier);
   };
 
   return (
@@ -58,7 +36,7 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Ticket Tiers</h3>
         <Button 
-          onClick={handleAddTier} 
+          onClick={onAddTier} 
           variant="outline" 
           size="sm" 
           className="flex items-center"
@@ -68,12 +46,19 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
         </Button>
       </div>
 
+      {ticketTiers.length === 0 && (
+        <div className="p-8 text-center border rounded-md bg-muted/30">
+          <p className="text-muted-foreground mb-4">No ticket tiers added yet</p>
+          <Button onClick={onAddTier} variant="outline">Add Your First Ticket Tier</Button>
+        </div>
+      )}
+
       {ticketTiers.map((tier, index) => (
-        <Card key={index} className="relative hover:shadow-md transition-shadow">
+        <Card key={tier.id || index} className="relative hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
             <div className="absolute top-2 right-2">
               <Button 
-                onClick={() => handleRemoveTier(index)} 
+                onClick={() => onRemoveTier(index)} 
                 variant="ghost" 
                 size="sm" 
                 className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
@@ -126,7 +111,7 @@ const TicketTierEditor = ({ ticketTiers, onChange }: TicketTierEditorProps) => {
               <div className="col-span-2">
                 <label className="text-sm font-medium">Description</label>
                 <Textarea
-                  value={tier.description}
+                  value={tier.description || ''}
                   onChange={(e) => updateTier(index, 'description', e.target.value)}
                   placeholder="Describe what's included with this ticket tier"
                   rows={2}
