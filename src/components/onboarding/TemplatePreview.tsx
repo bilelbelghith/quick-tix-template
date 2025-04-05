@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Music, GraduationCap, Trophy, Calendar, Star, Mic, Users, Clock, Award, MapPin } from 'lucide-react';
+import { Player } from '@lottiefiles/react-lottie-player';
 
 interface TemplatePreviewProps {
   onInteraction: () => void;
@@ -22,7 +23,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ onInteraction }) => {
         { icon: <Mic className="h-4 w-4" />, text: 'Artist profiles' },
         { icon: <Clock className="h-4 w-4" />, text: 'Set times' },
         { icon: <Users className="h-4 w-4" />, text: 'Fan experiences' }
-      ]
+      ],
+      preview: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+      event: {
+        title: 'Summer Music Festival',
+        subtitle: 'Featuring live performances from top artists',
+        date: 'Jul 15-17',
+        location: 'Central Park'
+      }
     },
     {
       id: 'workshop',
@@ -34,7 +42,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ onInteraction }) => {
         { icon: <Users className="h-4 w-4" />, text: 'Instructor bios' },
         { icon: <Award className="h-4 w-4" />, text: 'Skill levels' },
         { icon: <Clock className="h-4 w-4" />, text: 'Materials included' }
-      ]
+      ],
+      preview: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+      event: {
+        title: 'Design Thinking Workshop',
+        subtitle: 'Learn innovative problem-solving techniques',
+        date: 'Sep 5',
+        location: 'Innovation Hub'
+      }
     },
     {
       id: 'sports',
@@ -46,7 +61,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ onInteraction }) => {
         { icon: <Users className="h-4 w-4" />, text: 'Team matchups' },
         { icon: <MapPin className="h-4 w-4" />, text: 'Venue maps' },
         { icon: <Award className="h-4 w-4" />, text: 'Tournament info' }
-      ]
+      ],
+      preview: 'https://images.unsplash.com/photo-1471295253337-3ceaaedca402?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+      event: {
+        title: 'Championship Finals',
+        subtitle: 'The ultimate showdown for the championship title',
+        date: 'Oct 12',
+        location: 'Stadium Arena'
+      }
     }
   ];
   
@@ -89,9 +111,22 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ onInteraction }) => {
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
             onClick={() => handleSelectTemplate(template.id)}
           >
-            <div className={`aspect-video flex items-center justify-center ${template.color}`}>
-              <div className="bg-white/10 p-5 rounded-full">
-                {template.icon}
+            <div className="aspect-video relative">
+              <img 
+                src={template.preview} 
+                alt={template.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
+                <span className={`${template.color} text-white text-xs px-2 py-1 rounded-full w-fit mb-2`}>
+                  {template.id.charAt(0).toUpperCase() + template.id.slice(1)} Template
+                </span>
+                <h3 className="text-white text-lg font-bold">{template.event.title}</h3>
+                <p className="text-white/80 text-xs mt-1">{template.event.subtitle}</p>
+                <div className="flex items-center mt-2 space-x-2">
+                  <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">{template.event.date}</div>
+                  <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">{template.event.location}</div>
+                </div>
               </div>
             </div>
             <div className="p-6">
@@ -127,6 +162,14 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({ onInteraction }) => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
           >
+            <div className="mb-4">
+              <Player
+                autoplay
+                loop
+                src="/src/assets/animations/template.json"
+                style={{ height: '120px', width: '120px' }}
+              />
+            </div>
             <p className="text-xl font-medium mb-2">Great choice!</p>
             <p className="text-muted-foreground">Continue to customize your {templates.find(t => t.id === selectedTemplate)?.name.toLowerCase()}</p>
           </motion.div>

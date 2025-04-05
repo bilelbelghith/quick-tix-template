@@ -25,6 +25,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase, generateUniqueSlug } from '@/lib/supabase';
 import { TicketTier } from '@/types/events';
 
+interface TicketTier {
+  name: string;
+  price: number;
+  description: string;
+  quantity: number;
+}
+
 const Customizer = () => {
   const { templateId } = useParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +71,15 @@ const Customizer = () => {
     }
   };
 
+  const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([
+    { 
+      name: "General Admission", 
+      price: 25, 
+      description: "Standard entry to the event", 
+      quantity: 100 
+    }
+  ]);
+
   const handleTicketTiersChange = (tiers: TicketTier[]) => {
     const validTiers = tiers.map(tier => ({
       name: tier.name || 'Ticket',
@@ -86,6 +102,28 @@ const Customizer = () => {
       
       setTicketTiers(ticketTiersData);
     }
+  };
+
+  const handleAddTicketTier = () => {
+    setTicketTiers([
+      ...ticketTiers, 
+      { 
+        name: "New Ticket", 
+        price: 0, 
+        description: "Ticket description", 
+        quantity: 50 
+      }
+    ]);
+  };
+
+  const handleUpdateTicketTier = (index: number, updatedTier: TicketTier) => {
+    const newTiers = [...ticketTiers];
+    newTiers[index] = updatedTier;
+    setTicketTiers(newTiers);
+  };
+
+  const handleRemoveTicketTier = (index: number) => {
+    setTicketTiers(ticketTiers.filter((_, i) => i !== index));
   };
 
   const handleAddInitialTier = () => {
@@ -810,7 +848,9 @@ const Customizer = () => {
                         <FormControl>
                           <TicketTierEditor 
                             ticketTiers={field.value} 
-                            onChange={handleTicketTiersChange} 
+                            onAddTier={handleAddTicketTier}
+                            onUpdateTier={handleUpdateTicketTier}
+                            onRemoveTier={handleRemoveTicketTier}
                           />
                         </FormControl>
                         <FormMessage />

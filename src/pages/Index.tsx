@@ -246,8 +246,13 @@ const Index = () => {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                        <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full w-fit mb-2">Concert Template</span>
+                        <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full w-fit mb-2">Concert Template</span>
                         <h3 className="text-white text-xl font-bold">Summer Music Festival</h3>
+                        <p className="text-white/80 text-sm mt-1">Featuring live performances from top artists</p>
+                        <div className="flex items-center mt-3 space-x-2">
+                          <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">Jul 15-17</div>
+                          <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">Central Park</div>
+                        </div>
                       </div>
                     </motion.div>
                     
@@ -256,13 +261,18 @@ const Index = () => {
                       initial={false}
                     >
                       <img
-                        src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
+                        src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
                         alt="Workshop event template"
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
                         <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full w-fit mb-2">Workshop Template</span>
                         <h3 className="text-white text-xl font-bold">Design Thinking Workshop</h3>
+                        <p className="text-white/80 text-sm mt-1">Learn innovative problem-solving techniques</p>
+                        <div className="flex items-center mt-3 space-x-2">
+                          <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">Sep 5</div>
+                          <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">Innovation Hub</div>
+                        </div>
                       </div>
                     </motion.div>
                     
@@ -271,13 +281,18 @@ const Index = () => {
                       initial={false}
                     >
                       <img
-                        src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
+                        src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
                         alt="Sports event template"
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                        <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full w-fit mb-2">Sports Template</span>
+                        <span className="bg-orange-600 text-white text-xs px-2 py-1 rounded-full w-fit mb-2">Sports Template</span>
                         <h3 className="text-white text-xl font-bold">Championship Finals</h3>
+                        <p className="text-white/80 text-sm mt-1">The ultimate showdown for the championship title</p>
+                        <div className="flex items-center mt-3 space-x-2">
+                          <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">Oct 12</div>
+                          <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">Stadium Arena</div>
+                        </div>
                       </div>
                     </motion.div>
                     

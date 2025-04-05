@@ -21,7 +21,14 @@ const templateCategories = [
       { icon: <Music className="h-4 w-4" />, text: "Artist profile sections" },
       { icon: <Clock className="h-4 w-4" />, text: "Set times and schedules" }
     ],
-    example: "Perfect for music festivals, band performances, DJ sets, and more"
+    example: "Perfect for music festivals, band performances, DJ sets, and more",
+    preview: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    event: {
+      title: "Summer Music Festival",
+      subtitle: "Featuring live performances from top artists",
+      date: "Jul 15-17",
+      location: "Central Park"
+    }
   },
   {
     id: "workshop",
@@ -35,7 +42,14 @@ const templateCategories = [
       { icon: <Star className="h-4 w-4" />, text: "Skill level indicators" },
       { icon: <Clock className="h-4 w-4" />, text: "Materials & prerequisites" }
     ],
-    example: "Great for cooking classes, tech workshops, fitness training, and seminars"
+    example: "Great for cooking classes, tech workshops, fitness training, and seminars",
+    preview: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    event: {
+      title: "Design Thinking Workshop",
+      subtitle: "Learn innovative problem-solving techniques",
+      date: "Sep 5",
+      location: "Innovation Hub"
+    }
   },
   {
     id: "sports",
@@ -49,7 +63,14 @@ const templateCategories = [
       { icon: <MapPin className="h-4 w-4" />, text: "Venue & seating maps" },
       { icon: <Trophy className="h-4 w-4" />, text: "Tournament brackets" }
     ],
-    example: "Ideal for basketball games, golf tournaments, running races, and more"
+    example: "Ideal for basketball games, golf tournaments, running races, and more",
+    preview: "https://images.unsplash.com/photo-1471295253337-3ceaaedca402?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    event: {
+      title: "Championship Finals",
+      subtitle: "The ultimate showdown for the championship title",
+      date: "Oct 12",
+      location: "Stadium Arena"
+    }
   }
 ];
 
@@ -100,9 +121,22 @@ const Templates: React.FC = () => {
           {templateCategories.map((category, index) => (
             <motion.div key={index} variants={itemVariants} className="h-full">
               <Card className="h-full hover:shadow-lg transition-shadow duration-300 hover:border-blue-300 overflow-hidden">
-                <div className={`${category.color} p-6 flex justify-center items-center`}>
-                  <div className="bg-white/20 p-4 rounded-full">
-                    {category.icon}
+                <div className="relative aspect-video">
+                  <img 
+                    src={category.preview} 
+                    alt={category.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
+                    <span className={`${category.color} text-white text-xs px-2 py-1 rounded-full w-fit mb-2`}>
+                      {category.id.charAt(0).toUpperCase() + category.id.slice(1)} Template
+                    </span>
+                    <h3 className="text-white text-lg font-bold">{category.event.title}</h3>
+                    <p className="text-white/80 text-xs mt-1">{category.event.subtitle}</p>
+                    <div className="flex items-center mt-2 space-x-2">
+                      <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">{category.event.date}</div>
+                      <div className="bg-white/20 px-2 py-1 rounded text-xs text-white">{category.event.location}</div>
+                    </div>
                   </div>
                 </div>
                 <CardHeader>
