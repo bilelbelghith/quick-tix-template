@@ -210,24 +210,19 @@ const Customizer = () => {
       
       if (eventError) throw eventError;
       
-      if (data.ticketTiers && data.ticketTiers.length > 0) {
-        const ticketTiersData = data.ticketTiers.map(tier => ({
+      if (ticketTiers && ticketTiers.length > 0) {
+        const ticketTiersData = ticketTiers.map(tier => ({
+          event_id: eventData.id,
           name: tier.name,
           price: tier.price,
-          description: tier.description,
-          quantity: tier.quantity
+          description: tier.description || '',
+          quantity: tier.quantity,
+          available: tier.quantity
         }));
         
         const { error: tiersError } = await supabase
           .from('ticket_tiers')
-          .insert(ticketTiersData.map(tier => ({
-            event_id: eventData.id,
-            name: tier.name,
-            price: tier.price,
-            description: tier.description,
-            quantity: tier.quantity,
-            available: tier.quantity
-          })));
+          .insert(ticketTiersData);
         
         if (tiersError) throw tiersError;
       }

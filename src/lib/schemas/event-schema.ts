@@ -19,14 +19,30 @@ const baseEventSchema = {
   isOnline: z.boolean().default(false),
   ticketTiers: z.array(
     z.object({
+      id: z.string().default(() => `tier-${Math.random().toString(36).substring(2, 15)}`),
       name: z.string().min(1, "Tier name is required"),
       price: z.number().nonnegative(),
       description: z.string().default(""),
       quantity: z.number().int().positive(),
+      available: z.number().int().positive().default(0),
     })
   ).default([
-    { name: "General Admission", price: 25, description: "Standard entry", quantity: 100 },
-    { name: "VIP", price: 50, description: "Premium experience with early entry", quantity: 30 },
+    { 
+      id: `tier-${Math.random().toString(36).substring(2, 15)}`,
+      name: "General Admission", 
+      price: 25, 
+      description: "Standard entry", 
+      quantity: 100,
+      available: 100 
+    },
+    { 
+      id: `tier-${Math.random().toString(36).substring(2, 15)}`,
+      name: "VIP", 
+      price: 50, 
+      description: "Premium experience with early entry", 
+      quantity: 30,
+      available: 30
+    },
   ]),
 };
 
@@ -91,8 +107,22 @@ export const getDefaultEventValues = (templateType: string): Partial<EventFormVa
     isOnline: false,
     templateType: templateType as any,
     ticketTiers: [
-      { name: "General Admission", price: 25, description: "Standard entry", quantity: 100 },
-      { name: "VIP", price: 50, description: "Premium experience with early entry", quantity: 30 },
+      { 
+        id: `tier-${Math.random().toString(36).substring(2, 15)}`,
+        name: "General Admission", 
+        price: 25, 
+        description: "Standard entry", 
+        quantity: 100,
+        available: 100 
+      },
+      { 
+        id: `tier-${Math.random().toString(36).substring(2, 15)}`,
+        name: "VIP", 
+        price: 50, 
+        description: "Premium experience with early entry", 
+        quantity: 30,
+        available: 30 
+      },
     ],
   };
 
