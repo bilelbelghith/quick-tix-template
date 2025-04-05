@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import PublishSteps from '@/components/PublishSteps';
 import EventPreviewFrame from '@/components/EventPreviewFrame';
 import ShareOptions from '@/components/ShareOptions';
+import OrganizerFeedback from '@/components/OrganizerFeedback';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -56,6 +57,7 @@ const PublishEvent = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [publishedUrl, setPublishedUrl] = useState('');
   const [showShareOptions, setShowShareOptions] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
     fetchEventData();
@@ -69,7 +71,6 @@ const PublishEvent = () => {
         throw new Error('Event ID is required');
       }
       
-      // Fetch event data
       const { data: eventData, error: eventError } = await supabase
         .from('events')
         .select('*')
@@ -80,7 +81,6 @@ const PublishEvent = () => {
       
       setEvent(eventData);
       
-      // Fetch ticket tiers
       const { data: tiersData, error: tiersError } = await supabase
         .from('ticket_tiers')
         .select('*')
@@ -90,7 +90,6 @@ const PublishEvent = () => {
       
       setTicketTiers(tiersData || []);
       
-      // Run validations
       validateEvent(eventData, tiersData || []);
     } catch (error) {
       console.error('Error fetching event data:', error);
@@ -141,10 +140,8 @@ const PublishEvent = () => {
       
       setIsPublishing(true);
       
-      // Generate user-friendly URL slug if necessary
       let eventSlug = event.slug;
       
-      // Update the event as published
       const { data: updatedEvent, error: updateError } = await supabase
         .from('events')
         .update({ 
@@ -157,7 +154,6 @@ const PublishEvent = () => {
       
       if (updateError) throw updateError;
       
-      // Get the user's profile for the URL
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("User not authenticated");
       
@@ -175,7 +171,6 @@ const PublishEvent = () => {
         username = profileData.username;
       }
       
-      // Construct the shareable URL
       const shareableUrl = `${window.location.origin}/${username}/${eventSlug}`;
       
       setPublishedUrl(shareableUrl);
@@ -213,7 +208,23 @@ const PublishEvent = () => {
     }
   };
 
-  // Show loading state
+  const handleFeedbackSubmit = async (rating: number, comment: string) => {
+    if (!event) return;
+
+    try {
+      console.log("Feedback submitted:", { eventId: event.id, rating, comment });
+      
+      setShowFeedback(false);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      toast({
+        variant: "destructive",
+        title: "Couldn't submit feedback",
+        description: "There was a problem saving your feedback. Please try again."
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -464,6 +475,26 @@ const PublishEvent = () => {
                     </div>
                     
                     <Separator className="my-6" />
+                    
+                    {showFeedback ? (
+                      <div className="mb-8">
+                        <OrganizerFeedback 
+                          onSubmit={handleFeedbackSubmit}
+                          context="publishing"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-center mb-6">
+                        <p className="text-muted-foreground mb-3">We'd love to hear about your publishing experience!</p>
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowFeedback(true)}
+                          className="mx-auto"
+                        >
+                          Share Your Feedback
+                        </Button>
+                      </div>
+                    )}
                     
                     <ShareOptions url={publishedUrl} title={event?.name || 'My Event'} />
                     

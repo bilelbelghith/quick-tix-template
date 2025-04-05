@@ -8,9 +8,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface OrganizerFeedbackProps {
   onSubmit?: (rating: number, comment: string) => void;
+  context?: 'publishing' | 'sales' | 'general';
 }
 
-const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ onSubmit }) => {
+const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ onSubmit, context = 'general' }) => {
   const [rating, setRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
@@ -19,6 +20,17 @@ const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ onSubmit }) => {
 
   const handleRatingClick = (selectedRating: number) => {
     setRating(selectedRating);
+  };
+
+  const getFeedbackPrompt = () => {
+    switch (context) {
+      case 'publishing':
+        return "How was your experience publishing this event?";
+      case 'sales':
+        return "How satisfied are you with the ticket sales experience?";
+      default:
+        return "How was your experience using Tixify?";
+    }
   };
 
   const handleSubmit = () => {
@@ -73,7 +85,7 @@ const OrganizerFeedback: React.FC<OrganizerFeedbackProps> = ({ onSubmit }) => {
     <div className="bg-white p-6 rounded-xl shadow-sm">
       <h3 className="text-xl font-semibold mb-2">Share Your Experience</h3>
       <p className="text-muted-foreground mb-6">
-        How was your experience creating events with Tixify? Your feedback helps us improve.
+        {getFeedbackPrompt()} Your feedback helps us improve.
       </p>
 
       <div className="flex flex-col space-y-6">

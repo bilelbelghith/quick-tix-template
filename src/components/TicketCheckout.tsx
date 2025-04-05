@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -9,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { generateTicketPDF } from '@/utils/generateTicket';
+import OrganizerFeedback from './OrganizerFeedback';
 
-// Initialize Stripe - this would be your publishable key
 const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 
 interface CheckoutProps {
@@ -44,8 +43,8 @@ const CheckoutForm = ({
   const [customerName, setCustomerName] = useState('');
   const [saveInfo, setSaveInfo] = useState(false);
   const [isGeneratingTicket, setIsGeneratingTicket] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
-  // Check for saved customer info
   useEffect(() => {
     const savedEmail = localStorage.getItem('customerEmail');
     const savedName = localStorage.getItem('customerName');
@@ -68,13 +67,11 @@ const CheckoutForm = ({
     setIsLoading(true);
     
     try {
-      // Save customer info if checkbox is checked
       if (saveInfo) {
         localStorage.setItem('customerEmail', customerEmail);
         localStorage.setItem('customerName', customerName);
       }
       
-      // Process payment with Stripe
       const { error: paymentError } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -87,7 +84,6 @@ const CheckoutForm = ({
         throw new Error(paymentError.message || 'Payment failed');
       }
       
-      // If payment successful, create tickets in Supabase
       for (const ticket of tickets) {
         const { error: ticketError } = await supabase
           .from('tickets')
@@ -102,7 +98,6 @@ const CheckoutForm = ({
           
         if (ticketError) throw ticketError;
         
-        // Update available tickets in the ticket tier
         const { error: updateError } = await supabase.rpc('decrease_available_tickets', {
           p_ticket_tier_id: ticket.tierId,
           p_quantity: ticket.quantity
@@ -111,19 +106,16 @@ const CheckoutForm = ({
         if (updateError) throw updateError;
       }
       
-      // Show success state
       setIsComplete(true);
       toast({
         title: "Purchase successful!",
         description: "Your tickets are being generated.",
       });
       
-      // Generate and email PDF tickets
       setIsGeneratingTicket(true);
       await generateAndSendTickets();
       setIsGeneratingTicket(false);
       
-      // Call onSuccess callback
       onSuccess();
       
     } catch (error) {
@@ -140,7 +132,6 @@ const CheckoutForm = ({
   
   const generateAndSendTickets = async () => {
     try {
-      // For each ticket, create a PDF and send via email
       const { data: ticketData } = await supabase
         .from('tickets')
         .select('id')
@@ -155,12 +146,11 @@ const CheckoutForm = ({
       
       const ticketId = ticketData[0].id;
       
-      // Generate PDF ticket
       const pdfBlob = await generateTicketPDF({
         eventName,
         eventDate,
         eventLocation,
-        ticketType: tickets[0].name, // In case of multiple tickets, using first one for now
+        ticketType: tickets[0].name,
         attendeeName: customerName,
         attendeeEmail: customerEmail,
         ticketId,
@@ -168,14 +158,12 @@ const CheckoutForm = ({
         primaryColor
       });
       
-      // Convert PDF to base64 for sending to edge function
       const reader = new FileReader();
       reader.readAsDataURL(pdfBlob);
       reader.onloadend = async () => {
         if (typeof reader.result === 'string') {
           const base64data = reader.result.split(',')[1];
           
-          // Send email with ticket via edge function
           const { error } = await supabase.functions.invoke('send-ticket-email', {
             body: {
               ticketId,
@@ -205,16 +193,13 @@ const CheckoutForm = ({
         }
       };
       
-      // Create object URL for download
       const url = URL.createObjectURL(pdfBlob);
       
-      // Create download link
       const link = document.createElement('a');
       link.href = url;
       link.download = `${eventName.replace(/\s+/g, '-')}-ticket.pdf`;
       link.click();
       
-      // Clean up
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error generating ticket:', error);
@@ -227,7 +212,6 @@ const CheckoutForm = ({
   };
 
   const handleShareEvent = () => {
-    // Implementation for sharing and referral
     if (navigator.share) {
       navigator.share({
         title: `Join me at ${eventName}!`,
@@ -235,13 +219,17 @@ const CheckoutForm = ({
         url: window.location.href
       }).catch(err => console.error('Error sharing:', err));
     } else {
-      // Fallback copy to clipboard
       navigator.clipboard.writeText(`Join me at ${eventName}! ${window.location.href}`);
       toast({
         title: "Link copied to clipboard!",
         description: "Share with friends to earn referral credit.",
       });
     }
+  };
+
+  const handleFeedbackSubmit = (rating: number, comment: string) => {
+    console.log("Sales feedback submitted:", { eventId, rating, comment });
+    setShowFeedback(false);
   };
   
   if (isComplete) {
@@ -265,6 +253,13 @@ const CheckoutForm = ({
             <Loader2 className="h-4 w-4 animate-spin" />
             <span>Generating your tickets...</span>
           </div>
+        ) : showFeedback ? (
+          <div className="max-w-md mx-auto mb-6">
+            <OrganizerFeedback 
+              onSubmit={handleFeedbackSubmit}
+              context="sales"
+            />
+          </div>
         ) : (
           <div className="flex flex-col gap-2 items-center max-w-xs mx-auto">
             <Button 
@@ -283,6 +278,14 @@ const CheckoutForm = ({
             >
               <Share2 className="h-4 w-4 mr-2" />
               Share with Friends
+            </Button>
+            
+            <Button
+              className="w-full mt-2"
+              variant="outline"
+              onClick={() => setShowFeedback(true)}
+            >
+              Rate Your Experience
             </Button>
             
             <p className="text-xs text-center mt-2 text-muted-foreground">
@@ -384,15 +387,8 @@ const TicketCheckout: React.FC<CheckoutProps> = (props) => {
   useEffect(() => {
     const createPaymentIntent = async () => {
       try {
-        // In a real implementation, this would call your backend API to create a PaymentIntent
-        // For demo purposes, we're simulating a successful response with a fake client secret
-        
-        // Wait for a moment to simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Set fake client secret - in a real app, this would come from your server
         setClientSecret('pi_1234567890_secret_0987654321');
-        
       } catch (error) {
         console.error('Error creating payment intent:', error);
         toast({
