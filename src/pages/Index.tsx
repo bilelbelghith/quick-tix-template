@@ -1,4 +1,5 @@
-Dolor irure recusandimport React, { useEffect, useRef, useState } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { Link, useNavigate } from "react-router-dom";
