@@ -15,10 +15,10 @@ interface LiveBrandingSectionProps {
 }
 
 const colorOptions = [
-  { value: '#6D28D9', label: 'Purple' },
   { value: '#2563EB', label: 'Blue' },
-  { value: '#DC2626', label: 'Red' },
+  { value: '#0EA5E9', label: 'Sky Blue' },
   { value: '#059669', label: 'Green' },
+  { value: '#DC2626', label: 'Red' },
   { value: '#D97706', label: 'Orange' },
   { value: '#4B5563', label: 'Gray' },
 ];

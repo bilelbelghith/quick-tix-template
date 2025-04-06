@@ -64,27 +64,23 @@ const Pricing: React.FC = () => {
     { text: "Priority support", included: true },
   ];
 
-  const transactionFeeProps = {
-    text: "Transaction Fee",
-    free: "Stripe fees only",
-    pro: "2% + Stripe fees",
-    business: "0% (Stripe fees only)"
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="container mx-auto pt-24 px-4 pb-16">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <h1 className="text-4xl font-bold mb-4">Pricing Plans</h1>
+          <h1 className="text-4xl font-bold mb-4">Simple Pricing, Fewer Fees</h1>
           <p className="text-lg text-gray-600">
-            Choose the plan that works best for your event needs. Start for free, upgrade anytime.
+            Start free, upgrade as you grow. No hidden costs or surprises.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Trusted by 10,000+ event creators worldwide
           </p>
         </div>
 
         {/* Lifetime Deal Banner */}
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl p-4 flex flex-col md:flex-row items-center justify-between max-w-5xl mx-auto mb-12">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl p-4 flex flex-col md:flex-row items-center justify-between max-w-5xl mx-auto mb-12">
           <div className="flex items-center mb-4 md:mb-0">
             <Award className="h-12 w-12 mr-4" />
             <div>
@@ -94,7 +90,7 @@ const Pricing: React.FC = () => {
           </div>
           <div className="flex items-center">
             <div className="font-bold text-2xl mr-4">$99</div>
-            <Button size="lg" className="whitespace-nowrap bg-white text-purple-700 hover:bg-gray-100">
+            <Button size="lg" className="whitespace-nowrap bg-white text-blue-700 hover:bg-gray-100">
               Get Lifetime Deal
             </Button>
           </div>
@@ -129,7 +125,7 @@ const Pricing: React.FC = () => {
             price="$0"
             description="Perfect for testing the platform."
             features={freeFeatures}
-            buttonText="Get Started"
+            buttonText="Start Selling"
             buttonVariant="outline"
             delay={0}
           />
@@ -142,7 +138,7 @@ const Pricing: React.FC = () => {
             discount={billingPeriod === 'monthly' ? "20%" : undefined}
             description="For solo organizers and small businesses."
             features={proFeatures}
-            buttonText="Upgrade to Pro"
+            buttonText="Get Pro"
             popular={true}
             delay={150}
           />
@@ -155,7 +151,7 @@ const Pricing: React.FC = () => {
             discount={billingPeriod === 'monthly' ? "32%" : undefined}
             description="For agencies and event professionals."
             features={businessFeatures}
-            buttonText="Upgrade to Business"
+            buttonText="Talk to Us"
             buttonVariant="outline"
             delay={300}
           />
@@ -341,6 +337,12 @@ const Pricing: React.FC = () => {
               <p className="text-gray-600">We offer a 14-day money-back guarantee for all paid plans. If you're not satisfied, contact our support team.</p>
             </div>
           </div>
+        </div>
+
+        {/* Floating CTA */}
+        <div className="fixed bottom-6 left-0 right-0 mx-auto w-max z-10 shadow-lg rounded-full bg-white border border-gray-200 px-6 py-3 hidden md:flex items-center">
+          <span className="mr-4 font-medium">Still deciding? Compare plans →</span>
+          <Button className="bg-blue-600 hover:bg-blue-700">Get Started</Button>
         </div>
       </div>
     </div>

@@ -35,12 +35,12 @@ const PricingTier: React.FC<PricingTierProps> = ({
 }) => {
   return (
     <div 
-      className={`relative rounded-xl ${popular ? 'border-2 border-purple-600 shadow-lg transform hover:-translate-y-1' : 'border shadow-sm hover:shadow-md'} bg-card transition-all duration-300 ${className}`}
+      className={`relative rounded-xl ${popular ? 'border-2 border-blue-600 shadow-lg transform hover:-translate-y-1' : 'border shadow-sm hover:shadow-md'} bg-card transition-all duration-300 ${className}`}
       style={{ opacity: 0, animationDelay: `${delay}ms` }}
       data-aos="fade-up"
     >
       {popular && (
-        <div className="absolute -top-4 left-0 right-0 mx-auto w-32 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center">
+        <div className="absolute -top-4 left-0 right-0 mx-auto w-32 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium text-center">
           Most Popular
         </div>
       )}
@@ -82,7 +82,7 @@ const PricingTier: React.FC<PricingTierProps> = ({
         
         <Button 
           variant={buttonVariant} 
-          className={`w-full ${popular ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+          className={`w-full ${popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
         >
           {buttonText}
         </Button>

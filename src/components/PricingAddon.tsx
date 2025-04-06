@@ -22,7 +22,7 @@ const PricingAddon: React.FC<PricingAddonProps> = ({
         <p className="text-gray-600 text-sm mt-1">{description}</p>
       </div>
       <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-        <div className="font-bold text-lg text-purple-700">{price}</div>
+        <div className="font-bold text-lg text-blue-700">{price}</div>
         <Button size="sm" variant="outline" className="whitespace-nowrap">
           {buttonText}
         </Button>

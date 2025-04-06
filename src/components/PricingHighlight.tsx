@@ -42,11 +42,11 @@ const PricingHighlight: React.FC = () => {
 
           {/* Pro Plan */}
           <div 
-            className="rounded-xl border-2 border-purple-600 bg-white shadow-lg transform hover:-translate-y-1 transition-all duration-200 relative"
+            className="rounded-xl border-2 border-blue-600 bg-white shadow-lg transform hover:-translate-y-1 transition-all duration-200 relative"
             data-aos="fade-up"
             data-aos-delay="150"
           >
-            <div className="absolute -top-3 left-0 right-0 mx-auto w-32 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium text-center">
+            <div className="absolute -top-3 left-0 right-0 mx-auto w-32 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium text-center">
               Most Popular
             </div>
             <div className="p-6">
