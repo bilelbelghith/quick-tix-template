@@ -14,20 +14,22 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
   
   if (!event) return null;
 
-  const getTemplateColor = (templateType?: string) => {
-    switch (templateType) {
-      case 'concert':
-        return 'bg-purple-600';
-      case 'workshop':
-        return 'bg-green-600';
-      case 'sports':
-        return 'bg-orange-600';
-      default:
-        return 'bg-blue-600';
-    }
+  // Utility function to determine if a color is light or dark
+  const isLightColor = (color: string) => {
+    if (!color || !color.startsWith('#')) return false;
+    
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 128;
   };
 
-  const templateColor = getTemplateColor(event.template_type);
+  // Get text color based on background color for contrast
+  const getTextColor = (bgColor: string) => {
+    return isLightColor(bgColor) ? '#000000' : '#FFFFFF';
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -36,7 +38,7 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
           variant={viewMode === 'desktop' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setViewMode('desktop')}
-          className={viewMode === 'desktop' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          style={viewMode === 'desktop' ? { backgroundColor: event.primary_color || '#2563eb' } : {}}
         >
           <Monitor className="h-4 w-4 mr-2" />
           Desktop
@@ -45,7 +47,7 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
           variant={viewMode === 'mobile' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setViewMode('mobile')}
-          className={viewMode === 'mobile' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+          style={viewMode === 'mobile' ? { backgroundColor: event.primary_color || '#2563eb' } : {}}
         >
           <Smartphone className="h-4 w-4 mr-2" />
           Mobile
@@ -58,6 +60,7 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
             width: viewMode === 'mobile' ? 320 : 640,
             height: viewMode === 'mobile' ? 568 : 480,
           }}
+          initial={{ opacity: 1 }} // Ensure it's visible initially
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
             "bg-white rounded-lg overflow-hidden shadow-lg",
@@ -77,7 +80,13 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
                   }}
                 >
                   {event.template_type && (
-                    <span className={`${templateColor} text-white text-xs px-2 py-1 rounded-full w-fit mb-2`}>
+                    <span 
+                      className="text-white text-xs px-2 py-1 rounded-full w-fit mb-2"
+                      style={{ 
+                        backgroundColor: event.primary_color || '#2563eb',
+                        color: getTextColor(event.primary_color)
+                      }}
+                    >
                       {event.template_type.charAt(0).toUpperCase() + event.template_type.slice(1)} Event
                     </span>
                   )}
@@ -101,9 +110,14 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
               </div>
             ) : (
               <div 
-                className="w-full h-[45%] bg-gradient-to-r from-gray-700 to-gray-900 flex items-center justify-center"
+                className="w-full h-[45%] flex items-center justify-center"
+                style={{ 
+                  background: event.primary_color ? 
+                    `linear-gradient(to right, ${event.primary_color}99, ${event.primary_color})` : 
+                    'linear-gradient(to right, from-gray-700 to-gray-900)'
+                }}
               >
-                <p className="text-white opacity-50">No cover image</p>
+                <p style={{ color: getTextColor(event.primary_color) || '#FFFFFF' }} className="opacity-50">No cover image</p>
               </div>
             )}
             
@@ -123,8 +137,16 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
               
               <div className="space-y-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-gray-500" />
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ 
+                      backgroundColor: `${event.primary_color || '#2563eb'}20`
+                    }}
+                  >
+                    <Calendar 
+                      className="h-5 w-5" 
+                      style={{ color: event.primary_color || '#2563eb' }}
+                    />
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">Date & Time</div>
@@ -135,8 +157,16 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-gray-500" />
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ 
+                      backgroundColor: `${event.primary_color || '#2563eb'}20`
+                    }}
+                  >
+                    <MapPin 
+                      className="h-5 w-5" 
+                      style={{ color: event.primary_color || '#2563eb' }}
+                    />
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">Location</div>
@@ -147,8 +177,8 @@ const EventPreviewFrame: React.FC<EventPreviewFrameProps> = ({ event }) => {
               
               <div className="mt-6 w-full p-3" 
                 style={{ 
-                  backgroundColor: event.primary_color || '#2563EB',
-                  color: 'white',
+                  backgroundColor: event.primary_color || '#2563eb',
+                  color: getTextColor(event.primary_color) || 'white',
                   borderRadius: '0.375rem',
                   display: 'flex',
                   justifyContent: 'center',

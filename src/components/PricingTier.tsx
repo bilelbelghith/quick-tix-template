@@ -17,7 +17,7 @@ interface PricingTierProps {
   discount?: string;
   annualPrice?: string;
   delay?: number;
-  primaryColor?: string; // Add this prop
+  primaryColor?: string;
 }
 
 const PricingTier: React.FC<PricingTierProps> = ({ 
@@ -33,12 +33,12 @@ const PricingTier: React.FC<PricingTierProps> = ({
   discount,
   annualPrice,
   delay = 0,
-  primaryColor = '#2563eb' // Default to blue
+  primaryColor = '#2563eb'
 }) => {
   return (
     <div 
       className={`relative rounded-xl ${popular ? `border-2 border-[${primaryColor}] shadow-lg transform hover:-translate-y-1` : 'border shadow-sm hover:shadow-md'} bg-card transition-all duration-300 ${className}`}
-      style={{ opacity: 0, animationDelay: `${delay}ms` }}
+      style={{ animationDelay: `${delay}ms` }}
       data-aos="fade-up"
     >
       {popular && (
