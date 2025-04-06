@@ -7,7 +7,7 @@ interface PricingAddonProps {
   price: string;
   description: string;
   buttonText: string;
-  primaryColor?: string; // Add this prop
+  primaryColor?: string;
 }
 
 const PricingAddon: React.FC<PricingAddonProps> = ({ 
@@ -15,7 +15,7 @@ const PricingAddon: React.FC<PricingAddonProps> = ({
   price, 
   description, 
   buttonText,
-  primaryColor = '#2563eb' // Default to blue
+  primaryColor = '#2563eb' // Default to blue instead of purple
 }) => {
   return (
     <div className="border rounded-lg p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all duration-200">

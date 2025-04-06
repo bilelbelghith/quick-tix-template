@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, ColorPicker, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, Palette, ChevronDown, ChevronUp } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 
@@ -66,7 +66,7 @@ const ColorSelector: React.FC<ColorSelectorProps> = ({
               className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 flex items-center justify-center hover:scale-110 transition-all"
               title="Custom color"
             >
-              <ColorPicker className="h-5 w-5 text-white" />
+              <Palette className="h-5 w-5 text-white" />
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4 bg-white">
