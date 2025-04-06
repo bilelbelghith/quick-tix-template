@@ -34,7 +34,8 @@ const useCaseData = {
       role: "Festival Director, BlueNote Jazz Festival"
     },
     imageSrc: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80",
-    imageAlt: "Concert venue with crowd and stage lighting"
+    imageAlt: "Concert venue with crowd and stage lighting",
+    primaryColor: "#2563eb"
   },
   workshops: {
     title: "Workshops & Conferences",
@@ -64,7 +65,8 @@ const useCaseData = {
       role: "Event Manager, TechSummit Conference"
     },
     imageSrc: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80",
-    imageAlt: "Workshop with attendees collaborating at tables"
+    imageAlt: "Workshop with attendees collaborating at tables",
+    primaryColor: "#0EA5E9"
   },
   sports: {
     title: "Sports Events",
@@ -94,7 +96,8 @@ const useCaseData = {
       role: "Director, Regional Youth Sports League"
     },
     imageSrc: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80",
-    imageAlt: "Sports stadium with fans during a game"
+    imageAlt: "Sports stadium with fans during a game",
+    primaryColor: "#059669"
   }
 };
 
@@ -107,7 +110,7 @@ const UseCase: React.FC = () => {
   const caseData = useCaseData[validType];
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <UseCaseContent {...caseData} />
     </div>

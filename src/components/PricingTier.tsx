@@ -37,8 +37,11 @@ const PricingTier: React.FC<PricingTierProps> = ({
 }) => {
   return (
     <div 
-      className={`relative rounded-xl ${popular ? `border-2 border-[${primaryColor}] shadow-lg transform hover:-translate-y-1` : 'border shadow-sm hover:shadow-md'} bg-card transition-all duration-300 ${className}`}
-      style={{ animationDelay: `${delay}ms` }}
+      className={`relative rounded-xl ${popular ? 'border-2 shadow-lg transform hover:-translate-y-1' : 'border shadow-sm hover:shadow-md'} bg-card transition-all duration-300 ${className}`}
+      style={{ 
+        borderColor: popular ? primaryColor : '',
+        animationDelay: `${delay}ms` 
+      }}
       data-aos="fade-up"
     >
       {popular && (

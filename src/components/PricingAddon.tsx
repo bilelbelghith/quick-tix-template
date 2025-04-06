@@ -15,7 +15,7 @@ const PricingAddon: React.FC<PricingAddonProps> = ({
   price, 
   description, 
   buttonText,
-  primaryColor = '#2563eb' // Default to blue instead of purple
+  primaryColor = '#2563eb' // Default to blue
 }) => {
   // Utility function to determine if a color is light or dark
   const isLightColor = (color: string) => {
