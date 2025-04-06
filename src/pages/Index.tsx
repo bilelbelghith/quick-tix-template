@@ -97,7 +97,7 @@ const Index = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-blue-50 via-sky-50 to-white overflow-hidden">
+      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-blue-50 via-sky-50 to-white overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
           <div className="absolute top-1/3 -left-20 w-72 h-72 bg-sky-200 rounded-full opacity-20 blur-3xl"></div>
