@@ -144,6 +144,22 @@ const EventPage: React.FC = () => {
   const formattedDate = format(new Date(event.date), 'EEEE, MMMM d, yyyy');
   const formattedTime = format(new Date(event.date), 'h:mm a');
 
+  // Utility function to determine if a color is light or dark
+  const isLightColor = (color: string) => {
+    // Simple algorithm to determine if a color is light
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 128;
+  };
+
+  // Determine text color based on background
+  const getContrastColor = (bgColor: string) => {
+    return isLightColor(bgColor) ? '#000000' : '#FFFFFF';
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -253,6 +269,10 @@ const EventPage: React.FC = () => {
                 variant="outline" 
                 onClick={() => setShowFeedback(true)}
                 className="text-sm"
+                style={{ 
+                  borderColor: event.primary_color,
+                  color: event.primary_color
+                }}
               >
                 Share Your Experience
               </Button>
@@ -262,7 +282,13 @@ const EventPage: React.FC = () => {
           {showFeedback ? (
             <OrganizerFeedback />
           ) : (
-            <div className="bg-muted/30 rounded-lg p-6 text-center">
+            <div 
+              className="rounded-lg p-6 text-center"
+              style={{ 
+                backgroundColor: `${event.primary_color}10`, 
+                borderColor: event.primary_color
+              }}
+            >
               <p className="text-muted-foreground">
                 Have you attended this event? Share your experience to help others.
               </p>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -81,7 +82,7 @@ const Customizer = () => {
 
   const loadTicketTiersData = (data: any) => {
     if (data.ticketTiers && data.ticketTiers.length > 0) {
-      const ticketTiersData = data.ticketTiers.map((tier: any) => ({
+      const ticketTiersData: TicketTier[] = data.ticketTiers.map((tier: any) => ({
         id: tier.id || `tier-${Math.random().toString(36).substring(2, 15)}`,
         name: tier.name || 'General Admission',
         price: typeof tier.price === 'number' ? tier.price : 0,

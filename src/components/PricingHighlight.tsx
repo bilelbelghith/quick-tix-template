@@ -6,10 +6,10 @@ import { Link } from 'react-router-dom';
 
 const PricingHighlight: React.FC = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-12 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" data-aos="fade-up">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3" data-aos="fade-up">
             Simple, Transparent Pricing
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
@@ -90,8 +90,8 @@ const PricingHighlight: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex justify-center mt-10">
-          <Button asChild className="rounded-full px-8 font-medium" variant="outline">
+        <div className="flex justify-center mt-8">
+          <Button asChild className="rounded-full px-8 font-medium bg-blue-600 hover:bg-blue-700">
             <Link to="/pricing">See full pricing →</Link>
           </Button>
         </div>
