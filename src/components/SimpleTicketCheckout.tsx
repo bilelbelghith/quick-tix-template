@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, CreditCard } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,7 @@ const SimpleTicketCheckout: React.FC<SimpleTicketCheckoutProps> = ({
   onSuccess,
   onCancel
 }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: ''
@@ -70,6 +72,12 @@ const SimpleTicketCheckout: React.FC<SimpleTicketCheckoutProps> = ({
         title: "Payment successful!",
         description: `Your ticket for ${eventName} has been confirmed.`
       });
+      
+      // Generate a mock ticket ID for demo purposes
+      const mockTicketId = `ticket_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Navigate to ticket confirmation page
+      navigate(`/ticket-confirmation?ticket_id=${mockTicketId}&demo=true`);
       
       onSuccess?.();
     } catch (error) {
