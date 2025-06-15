@@ -22,10 +22,10 @@ const formSchema = z.object({
   name: z.string().min(1, 'Event name is required'),
   description: z.string().min(1, 'Description is required'),
   date: z.string().min(1, 'Date is required'),
-  time: z.string().min(1, 'Time is required'),
+  event_time: z.string().min(1, 'Time is required'),
   location: z.string().min(1, 'Location is required'),
   organizer_name: z.string().min(1, 'Organizer name is required'),
-  template_type: z.enum(['concert', 'workshop', 'sports']),
+  template_id: z.enum(['concert', 'workshop', 'sports']),
   primary_color: z.string().min(1, 'Primary color is required'),
 });
 
@@ -33,10 +33,10 @@ interface EventFormData {
   name: string;
   description: string;
   date: string;
-  time: string;
+  event_time: string;
   location: string;
   organizer_name: string;
-  template_type: 'concert' | 'workshop' | 'sports';
+  template_id: 'concert' | 'workshop' | 'sports';
   primary_color: string;
 }
 
@@ -58,10 +58,10 @@ const Customizer: React.FC = () => {
       name: '',
       description: '',
       date: '',
-      time: '',
+      event_time: '',
       location: '',
       organizer_name: '',
-      template_type: 'concert',
+      template_id: 'concert',
       primary_color: '#2563eb',
     },
   });
@@ -90,10 +90,10 @@ const Customizer: React.FC = () => {
           name: event.name || '',
           description: event.description || '',
           date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
-          time: event.time || '',
+          event_time: event.event_time || '',
           location: event.location || '',
           organizer_name: event.organizer_name || '',
-          template_type: event.template_type || 'concert',
+          template_id: event.template_id || 'concert',
           primary_color: event.primary_color || '#2563eb',
         });
         
@@ -136,10 +136,11 @@ const Customizer: React.FC = () => {
     try {
       const eventPayload = {
         ...data,
-        user_id: user.id,
+        organizer_id: user.id,
         logo_url: logoUrl,
         cover_image_url: coverImageUrl,
         updated_at: new Date().toISOString(),
+        slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       };
 
       let eventId = id;
@@ -223,6 +224,8 @@ const Customizer: React.FC = () => {
     logo_url: logoUrl,
     cover_image_url: coverImageUrl,
     id: eventData?.id || 'preview',
+    time: form.getValues().event_time,
+    template_type: form.getValues().template_id,
   };
 
   return (
@@ -315,7 +318,7 @@ const Customizer: React.FC = () => {
 
                       <FormField
                         control={form.control}
-                        name="time"
+                        name="event_time"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Time</FormLabel>
@@ -366,8 +369,8 @@ const Customizer: React.FC = () => {
                     <div>
                       <label className="block text-sm font-medium mb-2">Logo</label>
                       <ImageUploader
-                        onUpload={setLogoUrl}
-                        currentImage={logoUrl}
+                        value={logoUrl}
+                        onChange={setLogoUrl}
                         folder="logos"
                         aspectRatio="1:1"
                       />
@@ -376,8 +379,8 @@ const Customizer: React.FC = () => {
                     <div>
                       <label className="block text-sm font-medium mb-2">Cover Image</label>
                       <ImageUploader
-                        onUpload={setCoverImageUrl}
-                        currentImage={coverImageUrl}
+                        value={coverImageUrl}
+                        onChange={setCoverImageUrl}
                         folder="covers"
                         aspectRatio="16:9"
                       />
@@ -393,6 +396,14 @@ const Customizer: React.FC = () => {
                             <ColorSelector
                               value={field.value}
                               onChange={field.onChange}
+                              options={[
+                                { value: '#2563eb', label: 'Blue' },
+                                { value: '#7c3aed', label: 'Purple' },
+                                { value: '#059669', label: 'Green' },
+                                { value: '#dc2626', label: 'Red' },
+                                { value: '#ea580c', label: 'Orange' },
+                                { value: '#0891b2', label: 'Cyan' }
+                              ]}
                             />
                           </FormControl>
                           <FormMessage />
@@ -408,8 +419,8 @@ const Customizer: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <TicketTierEditor
-                      tiers={ticketTiers}
-                      onChange={setTicketTiers}
+                      ticketTiers={ticketTiers}
+                      onUpdate={setTicketTiers}
                     />
                   </CardContent>
                 </Card>

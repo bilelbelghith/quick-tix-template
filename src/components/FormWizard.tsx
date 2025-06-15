@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Eye } from 'lucide-react';
 import TemplateSelection from '@/components/wizard/TemplateSelection';
 import BrandingStep from '@/components/wizard/BrandingStep';
 import TicketInfoStep from '@/components/wizard/TicketInfoStep';
@@ -22,6 +23,7 @@ export interface WizardData {
 }
 
 const FormWizard: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [wizardData, setWizardData] = useState<WizardData>({
     templateType: '',
@@ -66,6 +68,11 @@ const FormWizard: React.FC = () => {
       default:
         return false;
     }
+  };
+
+  const handleGenerateEvent = () => {
+    // Navigate to the event display page with the wizard data
+    navigate('/event-display', { state: { eventData: wizardData } });
   };
 
   const CurrentStepComponent = steps[currentStep - 1].component;
@@ -143,8 +150,10 @@ const FormWizard: React.FC = () => {
                 <Button 
                   className="bg-green-600 hover:bg-green-700"
                   disabled={!canProceed()}
+                  onClick={handleGenerateEvent}
                 >
-                  Create Event
+                  <Eye className="h-4 w-4 mr-2" />
+                  Generate Event Page
                 </Button>
               )}
             </div>
