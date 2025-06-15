@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -88,7 +87,7 @@ const Customizer = () => {
         price: typeof tier.price === 'number' ? tier.price : 0,
         description: tier.description || '',
         quantity: typeof tier.quantity === 'number' ? tier.quantity : 0,
-        available: typeof tier.quantity === 'number' ? tier.quantity : 0
+        available: typeof tier.available === 'number' ? tier.available : (typeof tier.quantity === 'number' ? tier.quantity : 0)
       }));
       
       setTicketTiers(ticketTiersData);
