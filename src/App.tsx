@@ -14,6 +14,8 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
+import Customizer from "./pages/Customizer";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 // Auth component to check if user is logged in
@@ -50,6 +52,19 @@ const AppContent = () => {
       <Route path="/auth/signup" element={<Auth />} />
       <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      
+      {/* Protected Routes */}
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/customizer/:id" element={
+        <ProtectedRoute>
+          <Customizer />
+        </ProtectedRoute>
+      } />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
