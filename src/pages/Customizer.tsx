@@ -93,7 +93,7 @@ const Customizer: React.FC = () => {
           event_time: event.event_time || '',
           location: event.location || '',
           organizer_name: event.organizer_name || '',
-          template_id: event.template_id || 'concert',
+          template_id: (event.template_id as 'concert' | 'workshop' | 'sports') || 'concert',
           primary_color: event.primary_color || '#2563eb',
         });
         
@@ -217,6 +217,29 @@ const Customizer: React.FC = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleAddTier = () => {
+    const newTier: TicketTier = {
+      id: Date.now().toString(),
+      name: '',
+      price: 0,
+      description: '',
+      quantity: 0,
+      available: 0
+    };
+    setTicketTiers([...ticketTiers, newTier]);
+  };
+
+  const handleUpdateTier = (index: number, updatedTier: TicketTier) => {
+    const newTiers = [...ticketTiers];
+    newTiers[index] = updatedTier;
+    setTicketTiers(newTiers);
+  };
+
+  const handleRemoveTier = (index: number) => {
+    const newTiers = ticketTiers.filter((_, i) => i !== index);
+    setTicketTiers(newTiers);
   };
 
   const previewData = {
@@ -367,22 +390,22 @@ const Customizer: React.FC = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Logo</label>
                       <ImageUploader
                         value={logoUrl}
                         onChange={setLogoUrl}
-                        folder="logos"
-                        aspectRatio="1:1"
+                        onClear={() => setLogoUrl('')}
+                        aspectRatio="1/1"
+                        label="Logo"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">Cover Image</label>
                       <ImageUploader
                         value={coverImageUrl}
                         onChange={setCoverImageUrl}
-                        folder="covers"
-                        aspectRatio="16:9"
+                        onClear={() => setCoverImageUrl('')}
+                        aspectRatio="16/9"
+                        label="Cover Image"
                       />
                     </div>
 
@@ -420,7 +443,9 @@ const Customizer: React.FC = () => {
                   <CardContent>
                     <TicketTierEditor
                       ticketTiers={ticketTiers}
-                      onUpdate={setTicketTiers}
+                      onAddTier={handleAddTier}
+                      onUpdateTier={handleUpdateTier}
+                      onRemoveTier={handleRemoveTier}
                     />
                   </CardContent>
                 </Card>
