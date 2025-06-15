@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
+import Templates from "./pages/Templates";
+import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -36,6 +38,8 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/templates" element={<Templates />} />
+      <Route path="/create-event" element={<CreateEvent />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/auth/signup" element={<Auth />} />
       <Route path="/auth/reset-password" element={<ResetPassword />} />
