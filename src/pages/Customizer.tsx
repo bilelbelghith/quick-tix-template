@@ -2,360 +2,282 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, Calendar, MapPin, Save, Clock, Users, 
-  Mail, Edit, Music, Link as LinkIcon, GraduationCap,
-  Trophy, User, Layers, Award, Clock3, Flag, Dumbbell
-} from 'lucide-react';
+import { z } from 'zod';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import ImageUploader from '@/components/ImageUploader';
-import { eventSchema, EventFormValues, getDefaultEventValues, colorOptions } from '@/lib/schemas/event-schema';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import EventPreview from '@/components/EventPreview';
+import { Upload, Plus, Trash2, ArrowLeft, Eye, Save } from 'lucide-react';
+import ImageUploader from '@/components/ImageUploader';
 import ColorSelector from '@/components/ColorSelector';
+import EventPreviewFrame from '@/components/EventPreviewFrame';
 import TicketTierEditor from '@/components/TicketTierEditor';
-import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase, generateUniqueSlug } from '@/lib/supabase';
-import { TicketTier } from '@/types/ticketTier';
+import type { TicketTier } from '@/types/ticketTier';
 
-const Customizer = () => {
-  const { templateId } = useParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("details");
-  const { toast } = useToast();
+const formSchema = z.object({
+  name: z.string().min(1, 'Event name is required'),
+  description: z.string().min(1, 'Description is required'),
+  date: z.string().min(1, 'Date is required'),
+  time: z.string().min(1, 'Time is required'),
+  location: z.string().min(1, 'Location is required'),
+  organizer_name: z.string().min(1, 'Organizer name is required'),
+  template_type: z.enum(['concert', 'workshop', 'sports']),
+  primary_color: z.string().min(1, 'Primary color is required'),
+});
+
+interface EventFormData {
+  name: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  organizer_name: string;
+  template_type: 'concert' | 'workshop' | 'sports';
+  primary_color: string;
+}
+
+const Customizer: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [eventData, setEventData] = useState<any>(null);
+  const [logoUrl, setLogoUrl] = useState<string>('');
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('');
+  const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([]);
 
-  const form = useForm<EventFormValues>({
-    resolver: zodResolver(eventSchema),
-    defaultValues: getDefaultEventValues(templateId || 'concert'),
+  const form = useForm<EventFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      date: '',
+      time: '',
+      location: '',
+      organizer_name: '',
+      template_type: 'concert',
+      primary_color: '#2563eb',
+    },
   });
 
-  const uploadImage = async (file: string, path: string): Promise<string | null> => {
-    if (!file || !file.startsWith('blob:')) return null;
+  useEffect(() => {
+    if (id) {
+      fetchEventData();
+    }
+  }, [id]);
+
+  const fetchEventData = async () => {
+    if (!id) return;
     
     try {
-      const response = await fetch(file);
-      const blob = await response.blob();
-      
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-      const filePath = `${path}/${fileName}`;
-      
-      const { data, error } = await supabase.storage
-        .from('organizer_uploads')
-        .upload(filePath, blob);
-      
+      const { data: event, error } = await supabase
+        .from('events')
+        .select('*, ticket_tiers(*)')
+        .eq('id', id)
+        .single();
+
       if (error) throw error;
       
-      const { data: publicUrlData } = supabase.storage
-        .from('organizer_uploads')
-        .getPublicUrl(data.path);
-      
-      return publicUrlData.publicUrl;
-    } catch (error) {
-      console.error('Image upload error:', error);
-      throw new Error('Failed to upload image');
-    }
-  };
-
-  const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([
-    { 
-      id: "default-tier",
-      name: "General Admission", 
-      price: 25, 
-      description: "Standard entry to the event", 
-      quantity: 100,
-      available: 100
-    }
-  ]);
-
-  const handleTicketTiersChange = (tiers: TicketTier[]) => {
-    setTicketTiers(tiers);
-  };
-
-  const loadTicketTiersData = (data: any) => {
-    if (data.ticketTiers && data.ticketTiers.length > 0) {
-      const ticketTiersData: TicketTier[] = data.ticketTiers.map((tier: any) => ({
-        id: tier.id || `tier-${Math.random().toString(36).substring(2, 15)}`,
-        name: tier.name || 'General Admission',
-        price: typeof tier.price === 'number' ? tier.price : 0,
-        description: tier.description || '',
-        quantity: typeof tier.quantity === 'number' ? tier.quantity : 0,
-        available: typeof tier.available === 'number' ? tier.available : (typeof tier.quantity === 'number' ? tier.quantity : 0)
-      }));
-      
-      setTicketTiers(ticketTiersData);
-    }
-  };
-
-  const handleAddTicketTier = () => {
-    setTicketTiers([
-      ...ticketTiers, 
-      { 
-        id: `tier-${Math.random().toString(36).substring(2, 15)}`,
-        name: "New Ticket", 
-        price: 0, 
-        description: "Ticket description", 
-        quantity: 50,
-        available: 50
+      if (event) {
+        setEventData(event);
+        form.reset({
+          name: event.name || '',
+          description: event.description || '',
+          date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
+          time: event.time || '',
+          location: event.location || '',
+          organizer_name: event.organizer_name || '',
+          template_type: event.template_type || 'concert',
+          primary_color: event.primary_color || '#2563eb',
+        });
+        
+        setLogoUrl(event.logo_url || '');
+        setCoverImageUrl(event.cover_image_url || '');
+        
+        const ticketTiersData: TicketTier[] = (event.ticket_tiers || []).map((tier: any) => ({
+          id: tier.id || '',
+          name: tier.name || '',
+          price: typeof tier.price === 'number' ? tier.price : 0,
+          description: tier.description || '',
+          quantity: typeof tier.quantity === 'number' ? tier.quantity : 0,
+          available: typeof tier.available === 'number' ? tier.available : (typeof tier.quantity === 'number' ? tier.quantity : 0)
+        }));
+        
+        setTicketTiers(ticketTiersData);
       }
-    ]);
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load event data',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleUpdateTicketTier = (index: number, updatedTier: TicketTier) => {
-    const newTiers = [...ticketTiers];
-    newTiers[index] = updatedTier;
-    setTicketTiers(newTiers);
-  };
+  const onSubmit = async (data: EventFormData) => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to save events',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-  const handleRemoveTicketTier = (index: number) => {
-    setTicketTiers(ticketTiers.filter((_, i) => i !== index));
-  };
-
-  const handleAddInitialTier = () => {
-    setTicketTiers([{
-      id: `tier-${Math.random().toString(36).substring(2, 15)}`,
-      name: 'General Admission',
-      price: 29.99,
-      description: 'Standard entry ticket',
-      quantity: 100,
-      available: 100
-    }]);
-  };
-
-  const onSubmit = async (data: EventFormValues) => {
     setIsLoading(true);
     
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      
-      const organizerId = userData.user?.id;
-      if (!organizerId) throw new Error('You must be logged in to create an event');
-      
-      const slug = await generateUniqueSlug(data.name);
-      
-      let coverImageUrl = null;
-      let logoUrl = null;
-      
-      if (data.coverImage) {
-        coverImageUrl = await uploadImage(data.coverImage, `events/${organizerId}/covers`);
-      }
-      
-      if (data.logoImage) {
-        logoUrl = await uploadImage(data.logoImage, `events/${organizerId}/logos`);
-      }
-      
-      const eventBaseData = {
-        organizer_id: organizerId,
-        name: data.name,
-        slug: slug,
-        date: data.date.toISOString(),
-        location: data.location,
-        cover_image_url: coverImageUrl,
+      const eventPayload = {
+        ...data,
+        user_id: user.id,
         logo_url: logoUrl,
-        primary_color: data.primaryColor,
-        template_id: templateId || 'concert',
-        description: data.description,
-        organizer_name: data.organizerName,
-        contact_email: data.contactEmail,
-        capacity: data.capacity,
-        is_online: data.isOnline,
-        event_time: data.time
+        cover_image_url: coverImageUrl,
+        updated_at: new Date().toISOString(),
       };
+
+      let eventId = id;
       
-      let templateMetadata = {};
-      
-      if (templateId === 'concert') {
-        templateMetadata = {
-          artist_name: (data as any).artistName,
-          genre: (data as any).genre,
-          opening_act: (data as any).openingAct,
-          duration: (data as any).duration
-        };
-      } else if (templateId === 'workshop') {
-        templateMetadata = {
-          instructor_name: (data as any).instructorName,
-          skill_level: (data as any).skillLevel,
-          prerequisites: (data as any).prerequisites,
-          materials: (data as any).materials
-        };
-      } else if (templateId === 'sports') {
-        templateMetadata = {
-          team_names: (data as any).teamNames,
-          sport_type: (data as any).sportType,
-          competition_level: (data as any).competitionLevel,
-          rules: (data as any).rules
-        };
-      } else if (templateId === 'standard') {
-        templateMetadata = {};
+      if (id) {
+        const { error: updateError } = await supabase
+          .from('events')
+          .update(eventPayload)
+          .eq('id', id);
+        
+        if (updateError) throw updateError;
+      } else {
+        const { data: newEvent, error: insertError } = await supabase
+          .from('events')
+          .insert([eventPayload])
+          .select()
+          .single();
+        
+        if (insertError) throw insertError;
+        eventId = newEvent.id;
       }
-      
-      const fullEventData = {
-        ...eventBaseData,
-        metadata: templateMetadata
-      };
-      
-      const { data: eventData, error: eventError } = await supabase
-        .from('events')
-        .insert(fullEventData)
-        .select()
-        .single();
-      
-      if (eventError) throw eventError;
-      
-      if (ticketTiers && ticketTiers.length > 0) {
-        const ticketTiersData = ticketTiers.map(tier => ({
-          event_id: eventData.id,
+
+      if (eventId && ticketTiers.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('ticket_tiers')
+          .delete()
+          .eq('event_id', eventId);
+        
+        if (deleteError) throw deleteError;
+
+        const tierInserts = ticketTiers.map(tier => ({
+          event_id: eventId,
           name: tier.name,
           price: tier.price,
-          description: tier.description || '',
+          description: tier.description,
           quantity: tier.quantity,
-          available: tier.quantity
+          available: tier.available,
         }));
-        
+
         const { error: tiersError } = await supabase
           .from('ticket_tiers')
-          .insert(ticketTiersData);
+          .insert(tierInserts);
         
         if (tiersError) throw tiersError;
       }
-      
+
       toast({
-        title: "Event saved!",
-        description: "Your event has been created successfully.",
+        title: 'Success',
+        description: 'Event saved successfully!',
       });
       
-      navigate(`/events/${eventData.id}/publish`);
+      if (!id && eventId) {
+        navigate(`/customizer/${eventId}`);
+      }
     } catch (error) {
       console.error('Error saving event:', error);
       toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error instanceof Error ? error.message : "There was a problem saving your event.",
+        title: 'Error',
+        description: 'Failed to save event',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const formValues = form.watch();
-
-  const getTemplateIcon = () => {
-    switch (templateId) {
-      case 'concert':
-        return <Music className="h-5 w-5" />;
-      case 'workshop':
-        return <GraduationCap className="h-5 w-5" />;
-      case 'sports':
-        return <Trophy className="h-5 w-5" />;
-      case 'standard':
-        return <Calendar className="h-5 w-5" />;
-      default:
-        return <Calendar className="h-5 w-5" />;
+  const handlePublish = () => {
+    if (eventData?.id) {
+      navigate(`/publish/${eventData.id}`);
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Please save your event first before publishing',
+        variant: 'destructive',
+      });
     }
   };
 
+  const previewData = {
+    ...form.getValues(),
+    logo_url: logoUrl,
+    cover_image_url: coverImageUrl,
+    id: eventData?.id || 'preview',
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 max-w-screen-2xl items-center">
-          <Link to="/onboarding" className="mr-4 flex items-center">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div className="flex items-center justify-between w-full">
-            <h1 className="text-xl font-semibold flex items-center">
-              {getTemplateIcon()}
-              <span className="ml-2">
-                Customize Your {templateId?.charAt(0).toUpperCase() + templateId?.slice(1)} Template
-              </span>
-            </h1>
-            <div className="flex gap-2">
+    <div className="min-h-screen bg-gray-50">
+      <div className="border-b bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+              <h1 className="text-2xl font-bold">Event Customizer</h1>
+            </div>
+            <div className="flex items-center space-x-2">
               <Button 
-                variant="outline"
-                onClick={form.handleSubmit(onSubmit)} 
-                disabled={isLoading}
+                variant="outline" 
+                onClick={() => navigate(`/event/${eventData?.id}`)}
+                disabled={!eventData?.id}
               >
-                {isLoading ? 'Saving...' : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save
-                  </>
-                )}
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
               </Button>
               <Button 
-                onClick={form.handleSubmit(onSubmit)}
-                disabled={isLoading}
-                className="bg-purple-600 hover:bg-purple-700"
+                onClick={handlePublish}
+                disabled={!eventData?.id}
+                className="bg-green-600 hover:bg-green-700"
               >
-                {isLoading ? 'Saving...' : 'Save & Publish'}
+                Publish Event
               </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="flex flex-col lg:flex-row flex-1">
-        <div className="w-full lg:w-[40%] border-r p-6 overflow-auto">
-          <Form {...form}>
-            <form className="space-y-6">
-              <Tabs 
-                value={activeTab} 
-                onValueChange={setActiveTab}
-                className="mb-6"
-              >
-                <TabsList className="grid grid-cols-4 mb-6">
-                  <TabsTrigger value="details">Basic Info</TabsTrigger>
-                  <TabsTrigger value="template">Template Details</TabsTrigger>
-                  <TabsTrigger value="appearance">Appearance</TabsTrigger>
-                  <TabsTrigger value="tickets">Tickets</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="details" className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Event Name</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input placeholder="My Awesome Event" {...field} />
-                            <Edit className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Event Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="date"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Event Date</FormLabel>
+                          <FormLabel>Event Name</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="date"
-                                value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-                                onChange={(e) => {
-                                  const date = e.target.value ? new Date(e.target.value) : new Date();
-                                  field.onChange(date);
-                                }}
-                              />
-                              <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            </div>
+                            <Input placeholder="Enter event name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -364,503 +286,152 @@ const Customizer = () => {
 
                     <FormField
                       control={form.control}
-                      name="time"
+                      name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Event Time</FormLabel>
+                          <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="time"
-                                {...field}
-                              />
-                              <Clock className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            </div>
+                            <Textarea placeholder="Describe your event" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="isOnline"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>Online Event</FormLabel>
-                          <p className="text-sm text-muted-foreground">
-                            Is this a virtual/online event?
-                          </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="date"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Date</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{formValues.isOnline ? "Online Event URL" : "Event Location"}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input 
-                              placeholder={formValues.isOnline ? "https://zoom.us/j/123456789" : "123 Event St"} 
-                              {...field} 
-                            />
-                            {formValues.isOnline ? 
-                              <LinkIcon className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" /> :
-                              <MapPin className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            }
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="time"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Time</FormLabel>
+                            <FormControl>
+                              <Input type="time" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Event Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Tell attendees about your event..."
-                            className="min-h-[120px]"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Separator />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="organizerName"
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Event venue" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="organizer_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Organizer Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Event Organizer" {...field} />
+                            <Input placeholder="Your name or organization" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Branding</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Logo</label>
+                      <ImageUploader
+                        onUpload={setLogoUrl}
+                        currentImage={logoUrl}
+                        folder="logos"
+                        aspectRatio="1:1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Cover Image</label>
+                      <ImageUploader
+                        onUpload={setCoverImageUrl}
+                        currentImage={coverImageUrl}
+                        folder="covers"
+                        aspectRatio="16:9"
+                      />
+                    </div>
 
                     <FormField
                       control={form.control}
-                      name="contactEmail"
+                      name="primary_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contact Email</FormLabel>
+                          <FormLabel>Primary Color</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <Input 
-                                type="email" 
-                                placeholder="contact@example.com" 
-                                {...field} 
-                              />
-                              <Mail className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            </div>
+                            <ColorSelector
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
+                  </CardContent>
+                </Card>
 
-                  <FormField
-                    control={form.control}
-                    name="capacity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Event Capacity</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type="number"
-                              min="1"
-                              placeholder="100"
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            />
-                            <Users className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="template" className="space-y-6">
-                  {templateId === 'standard' && (
-                    <>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Calendar className="h-5 w-5 text-blue-600" />
-                        <h2 className="text-lg font-medium">Standard Event Details</h2>
-                      </div>
-                      
-                      <p className="text-muted-foreground mb-4">
-                        The standard template includes all the basic event information. 
-                        No additional fields are required.
-                      </p>
-                      
-                      <div className="bg-blue-50 rounded-md p-4">
-                        <p className="text-sm text-blue-700">
-                          Tip: Add all your event details in the "Basic Info" tab. You can customize the appearance in the "Appearance" tab.
-                        </p>
-                      </div>
-                    </>
-                  )}
-                  
-                  {templateId === 'concert' && (
-                    <>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Music className="h-5 w-5 text-purple-600" />
-                        <h2 className="text-lg font-medium">Concert Details</h2>
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="artistName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Artist/Band Name</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input placeholder="Featured Artist/Band" {...field} />
-                                <User className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="genre"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Music Genre</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input placeholder="Rock, Pop, Jazz, etc." {...field} />
-                                  <Layers className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="duration"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Concert Duration</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input placeholder="2 hours" {...field} />
-                                  <Clock3 className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="openingAct"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Opening Act</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input placeholder="Supporting artist or band (optional)" {...field} />
-                                <Users className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
-                  
-                  {templateId === 'workshop' && (
-                    <>
-                      <div className="flex items-center gap-2 mb-4">
-                        <GraduationCap className="h-5 w-5 text-blue-600" />
-                        <h2 className="text-lg font-medium">Workshop Details</h2>
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="instructorName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Instructor Name</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input placeholder="Workshop Instructor" {...field} />
-                                <User className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="skillLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Skill Level</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input placeholder="Beginner, Intermediate, Advanced" {...field} />
-                                  <Layers className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="prerequisites"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Prerequisites</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input placeholder="Any required prior knowledge" {...field} />
-                                  <Award className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="materials"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Required Materials</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input placeholder="What attendees should bring" {...field} />
-                                <Layers className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
-                  
-                  {templateId === 'sports' && (
-                    <>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Trophy className="h-5 w-5 text-green-600" />
-                        <h2 className="text-lg font-medium">Sports Event Details</h2>
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="teamNames"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Teams or Participants</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input placeholder="Team A vs Team B" {...field} />
-                                <Users className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="sportType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Sport Type</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input placeholder="Basketball, Soccer, etc." {...field} />
-                                  <Dumbbell className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="competitionLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Competition Level</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input placeholder="Amateur, Professional, etc." {...field} />
-                                  <Flag className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="rules"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Rules & Regulations</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Special rules for this event (optional)"
-                                className="min-h-[80px]"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
-                </TabsContent>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Ticket Tiers</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <TicketTierEditor
+                      tiers={ticketTiers}
+                      onChange={setTicketTiers}
+                    />
+                  </CardContent>
+                </Card>
 
-                <TabsContent value="appearance" className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="primaryColor"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Brand Color</FormLabel>
-                        <FormControl>
-                          <ColorSelector 
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={colorOptions}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <Button type="submit" disabled={isLoading} className="w-full">
+                  <Save className="h-4 w-4 mr-2" />
+                  {isLoading ? 'Saving...' : 'Save Event'}
+                </Button>
+              </form>
+            </Form>
+          </div>
 
-                  <Separator />
-
-                  <FormField
-                    control={form.control}
-                    name="coverImage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <ImageUploader
-                            value={field.value}
-                            onChange={field.onChange}
-                            onClear={() => field.onChange("")}
-                            aspectRatio="16/9"
-                            label="Cover Image (16:9)"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="logoImage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <ImageUploader
-                            value={field.value}
-                            onChange={field.onChange}
-                            onClear={() => field.onChange("")}
-                            aspectRatio="1/1"
-                            label="Logo Image (1:1)"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-
-                <TabsContent value="tickets" className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="ticketTiers"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <TicketTierEditor 
-                            ticketTiers={field.value} 
-                            onAddTier={handleAddTicketTier}
-                            onUpdateTier={handleUpdateTicketTier}
-                            onRemoveTier={handleRemoveTicketTier}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-              </Tabs>
-            </form>
-          </Form>
-        </div>
-
-        <div className="w-full lg:w-[60%] bg-muted/30 p-6 overflow-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-background rounded-lg shadow-md overflow-hidden h-full"
-          >
-            <EventPreview event={formValues} templateId={templateId || "concert"} />
-          </motion.div>
+          <div className="lg:sticky lg:top-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Live Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EventPreviewFrame event={previewData} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
