@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -58,7 +57,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate('/templates');
+    navigate('/auth');
   };
 
   useEffect(() => {
@@ -127,7 +126,7 @@ const Index = () => {
                   className="bg-blue-600 hover:bg-blue-700 text-lg px-8 rounded-full group" 
                   asChild
                 >
-                  <Link to="/templates" className="flex items-center">
+                  <Link to="/auth" className="flex items-center">
                     Get Started 
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
@@ -141,9 +140,11 @@ const Index = () => {
                   size="lg"
                   variant="outline"
                   className="text-lg px-8 rounded-full border-blue-200 text-blue-700 hover:bg-blue-50"
-                  asChild
+                  onClick={() => {
+                    document.querySelector('#features-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                 >
-                  <Link to="/interactive-demo">See Demo</Link>
+                  Learn More
                 </Button>
               </div>
             </motion.div>
@@ -307,7 +308,7 @@ const Index = () => {
       <LiveBrandingSection onGetStarted={handleGetStarted} />
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section id="features-section" className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ opacity: 0 }} data-aos="fade-up">
@@ -357,7 +358,7 @@ const Index = () => {
               <h2 className="text-3xl font-bold mb-6">Ready to create amazing events?</h2>
               <p className="text-xl mb-8 text-blue-100">Start with our free plan today</p>
 
-              <Link to="/templates">
+              <Link to="/auth">
                 <Button
                   size="lg"
                   className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 rounded-full"
@@ -382,14 +383,14 @@ const Index = () => {
               <h4 className="font-semibold mb-3">Product</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/templates" className="text-gray-400 hover:text-white">
-                    Templates
-                  </Link>
+                  <a href="#" className="text-gray-400 hover:text-white">
+                    Features
+                  </a>
                 </li>
                 <li>
-                  <Link to="/pricing" className="text-gray-400 hover:text-white">
+                  <a href="#" className="text-gray-400 hover:text-white">
                     Pricing
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>

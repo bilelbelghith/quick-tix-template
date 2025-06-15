@@ -6,21 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Onboarding from "./pages/Onboarding";
-import Customizer from "./pages/Customizer";
-import EventPage from "./pages/EventPage";
-import Dashboard from "./pages/Dashboard";
-import PublishEvent from "./pages/PublishEvent";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import Templates from "./pages/Templates";
-import Pricing from "./pages/Pricing";
-import UseCase from "./pages/UseCase";
-import PricingCalculator from "./pages/PricingCalculator";
-import Resources from "./pages/Resources";
-import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 
 // Auth component to check if user is logged in
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -47,47 +36,10 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/interactive-demo" element={<OnboardingFlow />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/auth/signup" element={<Auth />} />
       <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route 
-        path="/onboarding" 
-        element={<Onboarding />} 
-      />
-      <Route 
-        path="/:templateId/customize" 
-        element={
-          <ProtectedRoute>
-            <Customizer />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/events/:id/publish" 
-        element={
-          <ProtectedRoute>
-            <PublishEvent />
-          </ProtectedRoute>
-        } 
-      />
-      <Route path="/:username/:eventSlug" element={<EventPage />} />
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } 
-      />
-      {/* New routes for navigation menu */}
-      <Route path="/templates" element={<Templates />} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/pricing-calculator" element={<PricingCalculator />} />
-      <Route path="/use-cases/:type" element={<UseCase />} />
-      <Route path="/resources" element={<Resources />} />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -4,24 +4,10 @@ import { motion } from 'framer-motion';
 import { Check, Globe, Lock, ChevronRight, ChevronDown, ChevronUp, ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import ImageUploader from '@/components/ImageUploader';
-import ColorSelector from '@/components/ColorSelector';
-import EventPreviewFrame from '@/components/EventPreviewFrame';
-import OrganizerFeedback from '@/components/OrganizerFeedback';
-import { TicketTier } from '@/types/ticketTier';
 
 interface LiveBrandingSectionProps {
   onGetStarted?: () => void;
 }
-
-const colorOptions = [
-  { value: '#2563EB', label: 'Blue' },
-  { value: '#0EA5E9', label: 'Sky Blue' },
-  { value: '#059669', label: 'Green' },
-  { value: '#DC2626', label: 'Red' },
-  { value: '#D97706', label: 'Orange' },
-  { value: '#4B5563', label: 'Gray' },
-];
 
 const testimonials = [
   { 
@@ -42,34 +28,13 @@ const testimonials = [
 ];
 
 const LiveBrandingSection: React.FC<LiveBrandingSectionProps> = ({ onGetStarted }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const { toast } = useToast();
-  const [event, setEvent] = useState({
-    name: 'Your Amazing Event',
-    date: new Date().toISOString(),
-    time: '7:00 PM',
-    location: 'San Francisco, CA',
-    cover_image_url: '',
-    logo_url: '',
-    primary_color: '#2563EB',
-    ticket_tiers: [] as TicketTier[],
-    domain_type: 'free'
-  });
 
   const handleDemoRequest = () => {
     toast({
       title: "Demo request received!",
       description: "Our team will contact you shortly to schedule your personalized demo.",
-    });
-  };
-  
-  const handleFeedbackSubmit = (rating: number, comment: string) => {
-    console.log('Feedback submitted:', { rating, comment });
-    toast({
-      title: "Thank you for your feedback!",
-      description: "We appreciate your input to help us improve Tixify.",
     });
   };
 
