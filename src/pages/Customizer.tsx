@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, Plus, Trash2, ArrowLeft, Eye, Save } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
 import ColorSelector from '@/components/ColorSelector';
 import EventPreviewFrame from '@/components/EventPreviewFrame';
@@ -266,14 +266,6 @@ const Customizer: React.FC = () => {
               <h1 className="text-2xl font-bold">Event Customizer</h1>
             </div>
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate(`/event/${eventData?.id}`)}
-                disabled={!eventData?.id}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Preview
-              </Button>
               <Button 
                 onClick={handlePublish}
                 disabled={!eventData?.id}
