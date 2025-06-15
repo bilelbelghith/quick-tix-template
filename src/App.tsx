@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Templates from "./pages/Templates";
 import CreateEvent from "./pages/CreateEvent";
 import EventDisplay from "./pages/EventDisplay";
+import CheckoutDemo from "./pages/CheckoutDemo";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -42,6 +43,7 @@ const AppContent = () => {
       <Route path="/templates" element={<Templates />} />
       <Route path="/create-event" element={<CreateEvent />} />
       <Route path="/event-display" element={<EventDisplay />} />
+      <Route path="/checkout-demo" element={<CheckoutDemo />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/auth/signup" element={<Auth />} />
       <Route path="/auth/reset-password" element={<ResetPassword />} />
